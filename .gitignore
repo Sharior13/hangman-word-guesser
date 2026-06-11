@@ -1,0 +1,15 @@
+# Compiled object files
+*.o
+*.obj
+
+# Executables
+*.exe
+a.out
+
+# Build directories
+build/
+bin/
+
+# Dev C++ project files
+*.layout
+*.depend

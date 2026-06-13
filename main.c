@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "game.h"
+#include "drawing.h"
 
 int main(){
     char replay;
@@ -7,6 +8,7 @@ int main(){
         initGame();
         while(!gameShouldEnd()){
             updateGame();
+            drawHangman(state.wrongCount);
         }
         printf("\n\nPlay again? (y/n): ");
 		scanf(" %c", &replay);

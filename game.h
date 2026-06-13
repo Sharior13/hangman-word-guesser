@@ -1,7 +1,7 @@
 #ifndef GAME_H
 #define GAME_H
 
-#define MAX_WRONGS 5
+#define MAX_WRONGS 6
 #define MAX_WORD_LENGTH 30
 
 typedef struct{

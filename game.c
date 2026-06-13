@@ -27,7 +27,7 @@ void initGame(){
         state.correctLetters[i] = '_';
     }
     printf("\n====================== Hangman Word Guesser ======================");
-    printf("\nPress enter to play:");
+    printf("\nPress any key to start:");
     getch();
 }
 

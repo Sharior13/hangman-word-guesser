@@ -10,6 +10,23 @@ int main(){
             updateGame();
             drawHangman(state.wrongCount);
         }
+        
+        state.score += calculateScore();
+        if(state.score > state.highScore){
+			setHighScore(state.score);
+		}
+		
+		if(state.correctCount == state.secretWordSize){
+        	state.round++;
+        	printf("\nWord guessed successfully!");
+    	}
+    	else if(state.wrongCount >= MAX_WRONGS){
+        	printf("\nOut of lives! The correct word was %s.", state.secretWord);
+        	state.round = 1;
+        	state.score = 0;
+    	}
+	
+        printf("\nTotal Score: %d", state.score);
         printf("\n\nPlay again? (y/n): ");
 		scanf(" %c", &replay);
 		flushInput();

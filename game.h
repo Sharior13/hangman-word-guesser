@@ -20,11 +20,13 @@ void initGame();
 void updateGame();
 void checkWord();
 void loadSecretWord(char *word, int *wordSize);
+void giveHint(char *word, char *displayedLetters);
 int calculateScore();
 int getHighScore();  
 void setHighScore(int currentScore);  
 int gameShouldEnd();
 void sanitizeInput(char *letters);
 void flushInput();
+int getRandomNumber(int MIN, int MAX);
 
 #endif

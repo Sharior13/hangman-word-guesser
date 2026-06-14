@@ -1,14 +1,25 @@
 #include <stdio.h>
 #include <conio.h>
 #include <string.h>
+#include <stdlib.h>
+#include <time.h>
+#include <math.h>
 #include "game.h"
 
 GameState state = { .round = 1, .score = 0 };
 
 
 void loadSecretWord(char *word, int *wordSize){
-	strcpy(word, "FOOTBALL"); //edit to take word from file
+	strcpy(word, "COMPUTER"); //edit to take word from file
 	*wordSize = strlen(word);
+}
+
+void giveHint(char *word, char *displayedLetters){
+	int hintCount = round(strlen(word) * 0.25);
+	for(int i=0; i<hintCount; i++){
+		int randomIndex = getRandomNumber(0, strlen(word));
+		displayedLetters[randomIndex] = word[randomIndex];
+	}
 }
 
 void checkWord(){
@@ -114,6 +125,8 @@ int calculateScore(){
 }
 
 void initGame(){
+	srand(time(NULL));
+	
 	state.secretWordSize = 0;
 	state.tryCount = 0;
 	state.wrongCount = 0;
@@ -134,6 +147,7 @@ void initGame(){
 	for(int i=0; i<state.secretWordSize; i++){
         state.correctLetters[i] = '_';
     }
+    giveHint(state.secretWord, state.correctLetters);
     printf("\n====================== Hangman Word Guesser ======================");
     printf("\nHighscore: %d", state.highScore);
     printf("\nRound: %d", state.round);
@@ -196,4 +210,8 @@ void sanitizeInput(char *letters) {
 void flushInput(){
     int c;
     while((c = getchar()) != '\n' && c != EOF);
+}
+
+int getRandomNumber(int MIN, int MAX){
+	return (rand() % MAX) + MIN;
 }

@@ -15,11 +15,16 @@ void loadSecretWord(char *word, int *wordSize){
 }
 
 void giveHint(char *word, char *displayedLetters){
-	int hintCount = round(strlen(word) * 0.25);
-	for(int i=0; i<hintCount; i++){
-		int randomIndex = getRandomNumber(0, strlen(word));
-		displayedLetters[randomIndex] = word[randomIndex];
-	}
+    int hintCount = round(strlen(word) * 0.25);
+
+    for(int i=0; i<hintCount; i++){
+        int randomIndex;
+        do{
+            randomIndex = getRandomNumber(0, strlen(word));
+        } while(displayedLetters[randomIndex] != '_');
+        
+        displayedLetters[randomIndex] = word[randomIndex];
+    }
 }
 
 void checkWord(){
@@ -164,7 +169,7 @@ void updateGame(){
     }
     printf("\nLives left: %d", MAX_WRONGS - state.wrongCount);
     printf("\nIncorrect letters: ");
-    for(int i=0; i<MAX_WRONG_LENGTH; i++){
+    for(int i=0; i<state.wrongCount; i++){
     	printf("%c ", state.wrongLetters[i]);
 	}
     printf("\n\nEnter a guess: ");

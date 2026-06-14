@@ -4,7 +4,7 @@
 
 int main(){
     char replay;
-    do {
+    do{
         initGame();
         while(!gameShouldEnd()){
             updateGame();

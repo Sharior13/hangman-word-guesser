@@ -19,14 +19,14 @@ int main(){
 		if(state.correctCount == state.secretWordSize){
         	state.round++;
         	printf("\nWord guessed successfully!");
+        	printf("\nTotal Score: %d", state.score);
     	}
     	else if(state.wrongCount >= MAX_WRONGS){
         	printf("\nOut of lives! The correct word was %s.", state.secretWord);
+	        printf("\nTotal Score: %d", state.score);
         	state.round = 1;
         	state.score = 0;
     	}
-	
-        printf("\nTotal Score: %d", state.score);
         printf("\n\nPlay again? (y/n): ");
 		scanf(" %c", &replay);
 		flushInput();

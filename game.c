@@ -3,15 +3,21 @@
 #include <string.h>
 #include "game.h"
 
-GameState state = { .round = 1, .score = 0};
+GameState state = { .round = 1, .score = 0 };
 
 
 void loadSecretWord(char *word, int *wordSize){
-	strcpy(word, "football"); //edit to take word from file
+	strcpy(word, "FOOTBALL"); //edit to take word from file
 	*wordSize = strlen(word);
 }
 
 void checkWord(){
+	if(strlen(state.letter) == 0){
+        printf("\nInvalid input! Please enter letter or word only.");
+        state.correctFlag = 2;
+        return;
+    }
+    
 	if(strlen(state.letter) > 1){
         if(strcmp(state.letter, state.secretWord) == 0){
             printf("\nCorrect! You guessed the whole word!");
@@ -19,13 +25,13 @@ void checkWord(){
         }
 		else{
         	printf("\nWrong word guess!");
-        	for(int g=0; g<strlen(state.letter); g++){
+        	for(int i=0; i<strlen(state.letter); i++){
 	    		int letterMatched = 0;
-    			for(int i=0; i<state.secretWordSize; i++){
-        			if(state.letter[g] == state.secretWord[i]){
+    			for(int j=0; j<state.secretWordSize; j++){
+        			if(state.letter[i] == state.secretWord[j]){
             			letterMatched = 1;
-            			if(state.letter[g] != state.correctLetters[i]){
-            	    		state.correctLetters[i] = state.secretWord[i];
+            			if(state.letter[i] != state.correctLetters[j]){
+            	    		state.correctLetters[j] = state.secretWord[j];
         	        		state.correctCount++;
     	            		state.correctFlag = 1;
 	            		}
@@ -33,14 +39,14 @@ void checkWord(){
     			}
     			if(!letterMatched){
         			int alreadyWrong = 0;
-        			for(int w=0; w<state.wrongCount; w++){
-            			if(state.letter[g] == state.wrongLetters[w]){
+        			for(int j=0; j<state.wrongCount; j++){
+            			if(state.letter[i] == state.wrongLetters[j]){
                 			alreadyWrong = 1;
             	    		break;
         	    		}
     	    		}
 	        		if(!alreadyWrong){
-            			state.wrongLetters[state.wrongCount] = state.letter[g];
+            			state.wrongLetters[state.wrongCount] = state.letter[i];
             			state.wrongCount++;
         			}
     			}
@@ -51,8 +57,8 @@ void checkWord(){
     	}
     }
 	else {
-		for(int w = 0; w < state.wrongCount; w++){
-        	if(state.letter[0] == state.wrongLetters[w]){
+		for(int i=0; i<state.wrongCount; i++){
+        	if(state.letter[0] == state.wrongLetters[i]){
             	printf("\nAlready guessed! Try something else.");
             	state.correctFlag = 2;
             	break;
@@ -108,11 +114,11 @@ int calculateScore(){
 }
 
 void initGame(){
-	state.secretWordSize=0;
-	state.tryCount=0;
-	state.wrongCount=0;
-	state.correctCount=0;
-	state.correctFlag=0;
+	state.secretWordSize = 0;
+	state.tryCount = 0;
+	state.wrongCount = 0;
+	state.correctCount = 0;
+	state.correctFlag = 0;
 	state.highScore = getHighScore();
 	
 	for(int i=0; i<MAX_WORD_LENGTH; i++){
@@ -120,7 +126,7 @@ void initGame(){
         state.correctLetters[i] = '\0';
         state.letter[i] = '\0';
     }
-    for(int i=0; i<26; i++){
+    for(int i=0; i<MAX_WRONG_LENGTH; i++){
         state.wrongLetters[i] = '\0';
     }
     
@@ -133,6 +139,7 @@ void initGame(){
     printf("\nRound: %d", state.round);
     printf("\nPress any key to start: ");
     getch();
+    printf("\n");
 }
 
 void updateGame(){
@@ -142,10 +149,19 @@ void updateGame(){
         printf("%c ", state.correctLetters[i]);
     }
     printf("\nLives left: %d", MAX_WRONGS - state.wrongCount);
+    printf("\nIncorrect letters: ");
+    for(int i=0; i<MAX_WRONG_LENGTH; i++){
+    	printf("%c ", state.wrongLetters[i]);
+	}
     printf("\n\nEnter a guess: ");
     scanf("%30s", state.letter);
+    sanitizeInput(state.letter);
     flushInput();
     checkWord();
+    
+    if(strlen(state.letter) == 0){
+        return;
+    }
     state.tryCount++;
 }
 
@@ -159,6 +175,22 @@ int gameShouldEnd(){
     else{
     	return 0;
 	}
+}
+
+void sanitizeInput(char *letters) {
+    int len = strlen(letters);
+    int last = 0;
+
+    for (int i = 0; i < len; i++) {
+        char c = letters[i];
+
+        if (c >= 'a' && c <= 'z') {
+            letters[last++] = c - 32;
+        } else if (c >= 'A' && c <= 'Z') {
+            letters[last++] = c;
+        }
+    }
+    letters[last] = '\0';
 }
 
 void flushInput(){

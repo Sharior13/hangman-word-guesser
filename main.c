@@ -5,16 +5,20 @@
 int main(){
     char replay;
     do{
+    	clearScreen();
         initGame();
         while(!gameShouldEnd()){
-            updateGame();
+    		clearScreen();
             drawHangman(state.wrongCount);
+            updateGame();
         }
         
         state.score += calculateScore();
         if(state.score > state.highScore){
 			setHighScore(state.score);
 		}
+		
+		clearScreen(); 
 		
 		if(state.correctCount == state.secretWordSize){
         	state.round++;

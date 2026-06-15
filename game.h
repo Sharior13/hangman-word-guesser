@@ -11,7 +11,7 @@
 typedef struct{
 	char secretWord[MAX_WORD_LENGTH];
 	int secretWordSize, tryCount, wrongCount, correctCount, correctFlag, score, highScore, round;
-	char letter[MAX_WORD_LENGTH], correctLetters[MAX_WORD_LENGTH], wrongLetters[MAX_WRONG_LENGTH];	
+	char letter[MAX_WORD_LENGTH], correctLetters[MAX_WORD_LENGTH], wrongLetters[MAX_WRONG_LENGTH], message[100];	
 } GameState;
 
 extern GameState state;
@@ -28,5 +28,6 @@ int gameShouldEnd();
 void sanitizeInput(char *letters);
 void flushInput();
 int getRandomNumber(int MIN, int MAX);
+void clearScreen();
 
 #endif

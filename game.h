@@ -28,6 +28,7 @@ void setHighScore(int currentScore);
 int gameShouldEnd();
 void sanitizeInput(char *letters);
 void flushInput();
+void resetVariables();
 int getRandomNumber(int MIN, int MAX);
 void clearScreen();
 

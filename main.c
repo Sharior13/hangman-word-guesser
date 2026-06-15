@@ -41,6 +41,6 @@ int main(){
 		flushInput();
     } while(replay == 'y' || replay == 'Y');
 
-    printf("\nThanks for playing!\n");
+    printf("\nThanks for playing!\nYour highest score was %d.", state.highScore);
     return 0;
 }

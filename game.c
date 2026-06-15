@@ -8,10 +8,41 @@
 
 GameState state = { .round = 1, .score = 0 };
 
-
+//load secret word from file
 void loadSecretWord(char *word, int *wordSize){
-	strcpy(word, "COMPUTER"); //edit to take word from file
+	FILE *fp;
+	fp=fopen("data/word-bank.txt","r");
+	if(fp==NULL)
+	{
+		strcpy(state.message,"Error opening word-bank.txt file");
+	}
+	
+	char fileWords[MAX_WORD_LENGTH];
+	int wordCount=0;
+	while(fscanf(fp,"%s",fileWords)!=EOF)
+	{
+		wordCount ++;
+		
+	}
+	if(wordCount==0)
+	{
+		strcpy(state.message, "Word file is empty");
+		fclose(fp);
+	}
+	int random=getRandomNumber(0,wordCount);
+	rewind(fp);
+	int currentline=0;
+	while(fscanf(fp,"%s",fileWords)!=EOF)
+	{
+		if(currentline==random)
+		{
+			strcpy(word,fileWords);
+			break;
+		}
+		currentline++;
+	}
 	*wordSize = strlen(word);
+	fclose(fp);
 }
 
 //give 25% of the words letters as hint
@@ -26,6 +57,13 @@ void giveHint(char *word, char *displayedLetters){
 		} while(displayedLetters[randomIndex] != '_');
 
 		displayedLetters[randomIndex] = word[randomIndex];
+		//check if the hinted letter exists in other places
+		for(int j=0; j<state.secretWordSize; j++){
+			if((displayedLetters[randomIndex] == word[j]) && randomIndex != j){
+				displayedLetters[j] = word[j];
+				hintCount++;
+			}
+		}
 	}
 	
 	//set hint count as correctly guessed count
@@ -134,6 +172,12 @@ void checkWord(){
 			}
 		}
 	}
+	
+	//final check of the word
+	if(strcmp(state.correctLetters, state.secretWord) == 0){
+		state.correctCount = state.secretWordSize;
+		return;
+	}
 }
 
 int getHighScore(){
@@ -166,22 +210,7 @@ void initGame(){
 	srand(time(NULL));
 	
 	//reset all game variables
-	state.secretWordSize = 0;
-	state.tryCount = 0;
-	state.wrongCount = 0;
-	state.correctCount = 0;
-	state.correctFlag = 0;
-	state.highScore = getHighScore();
-	state.message[0] = '\0';
-
-	for(int i=0; i<MAX_WORD_LENGTH; i++){
-		state.secretWord[i] = '\0';
-		state.correctLetters[i] = '\0';
-		state.letter[i] = '\0';
-	}
-	for(int i=0; i<MAX_WRONG_LENGTH; i++){
-		state.wrongLetters[i] = '\0';
-	}
+	resetVariables();
 
 	//load secret word from file
 	loadSecretWord(state.secretWord, &state.secretWordSize);
@@ -256,6 +285,26 @@ void sanitizeInput(char *letters) {
 		}
 	}
 	letters[last] = '\0';
+}
+
+void resetVariables(){
+	state.secretWordSize = 0;
+	state.tryCount = 0;
+	state.wrongCount = 0;
+	state.correctCount = 0;
+	state.correctFlag = 0;
+	state.highScore = getHighScore();
+	state.message[0] = '\0';
+
+	for(int i=0; i<MAX_WORD_LENGTH; i++){
+		state.secretWord[i] = '\0';
+		state.correctLetters[i] = '\0';
+		state.letter[i] = '\0';
+	}
+	for(int i=0; i<MAX_WRONG_LENGTH; i++){
+		state.wrongLetters[i] = '\0';
+	}
+	
 }
 
 void flushInput(){

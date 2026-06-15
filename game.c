@@ -180,14 +180,36 @@ void checkWord(){
 	}
 }
 
+//get high score from file
 int getHighScore(){
-	//add file handling and remove ts after adding file handling
-	return state.highScore;
+	FILE *fp = fopen("data/game-file.bin", "rb");
+	if(fp == NULL){
+		//file doesn't exist yet, return 0
+		strcpy(state.message, "Error getting high score.");
+		return 0;
+	}
+
+	int savedHighScore = 0;
+	if(fread(&savedHighScore, sizeof(int), 1, fp) != 1){
+		//read failed or file is empty
+		savedHighScore = 0;
+	}
+
+	fclose(fp);
+	return savedHighScore;
 }
 
+//set high score to file
 void setHighScore(int currentScore){
-	//add file handling
+	FILE *fp = fopen("data/game-file.bin", "wb");
+	if(fp == NULL){
+		strcpy(state.message, "Error saving high score.");
+		return;
+	}
+
+	fwrite(&currentScore, sizeof(int), 1, fp);
 	state.highScore = currentScore;
+	fclose(fp);
 }
 
 //calculate total score of each round 

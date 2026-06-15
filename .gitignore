@@ -13,3 +13,6 @@ bin/
 # Dev C++ project files
 *.layout
 *.depend
+
+# Data files
+*.bin

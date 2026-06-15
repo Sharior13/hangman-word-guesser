@@ -24,12 +24,12 @@ HostApplication=
 UseCustomMakefile=0
 CustomMakefile=
 CommandLine=
-Folders=data,include,lib
+Folders=include,lib
 IncludeVersionInfo=0
 SupportXPThemes=0
 CompilerSet=0
 CompilerSettings=0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;12;0;0;0
-UnitCount=9
+UnitCount=8
 
 [VersionInfo]
 Major=1
@@ -80,11 +80,11 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit6]
-FileName=include\raylib.h
+FileName=lib\libraylib.a
 CompileCpp=0
-Folder=include
-Compile=1
-Link=1
+Folder=lib
+Compile=0
+Link=0
 Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
@@ -99,26 +99,18 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit5]
-FileName=data\word-bank.txt
-Folder=data
-Compile=0
-Link=0
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
 [Unit7]
-FileName=lib\libraylib.a
-Folder=lib
-Compile=0
-Link=0
+FileName=drawing.h
+Folder=
+Compile=1
+Link=1
 Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
+CompileCpp=0
 
 [Unit8]
-FileName=drawing.h
+FileName=drawing.c
 CompileCpp=0
 Folder=
 Compile=1
@@ -131,6 +123,16 @@ BuildCmd=
 FileName=drawing.c
 CompileCpp=0
 Folder=
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit5]
+FileName=include\raylib.h
+CompileCpp=0
+Folder=include
 Compile=1
 Link=1
 Priority=1000

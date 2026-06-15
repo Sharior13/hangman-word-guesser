@@ -15,6 +15,7 @@ void loadSecretWord(char *word, int *wordSize){
 	if(fp==NULL)
 	{
 		strcpy(state.message,"Error opening word-bank.txt file");
+		return;
 	}
 	
 	char fileWords[MAX_WORD_LENGTH];
@@ -28,6 +29,7 @@ void loadSecretWord(char *word, int *wordSize){
 	{
 		strcpy(state.message, "Word file is empty");
 		fclose(fp);
+		return;
 	}
 	int random=getRandomNumber(0,wordCount);
 	rewind(fp);
@@ -49,6 +51,9 @@ void loadSecretWord(char *word, int *wordSize){
 void giveHint(char *word, char *displayedLetters){
 	int hintCount = round(strlen(word) * 0.25);
 
+	//set hint count as correctly guessed count
+	state.correctCount = hintCount;
+	
 	for(int i=0; i<hintCount; i++){
 		int randomIndex;
 		//loop if the random index is already given
@@ -61,16 +66,16 @@ void giveHint(char *word, char *displayedLetters){
 		for(int j=0; j<state.secretWordSize; j++){
 			if((displayedLetters[randomIndex] == word[j]) && randomIndex != j){
 				displayedLetters[j] = word[j];
-				hintCount++;
+				state.correctCount++;
 			}
 		}
 	}
 	
-	//set hint count as correctly guessed count
-	state.correctCount = hintCount;
 }
 
 void checkWord(){
+	state.correctFlag = 0;
+
 	//handle invalid input
 	if(strlen(state.letter) == 0){
 		strcpy(state.message, "Invalid input! Please enter letter or word only.");
@@ -251,7 +256,6 @@ void initGame(){
 //display round stats, input guesses then check those guesses
 void updateGame(){
 	printf("\nRound: %d", state.round);
-	state.correctFlag = 0;
 	printf("\nWord: ");
 	for(int i=0; i<state.secretWordSize; i++){
 		printf("%c ", state.correctLetters[i]);
@@ -266,7 +270,7 @@ void updateGame(){
 		printf("\n%s", state.message);
 	}
 	printf("\nEnter a guess: ");
-	scanf("%30s", state.letter);
+	scanf("%29s", state.letter);
 	sanitizeInput(state.letter);
 	flushInput();
 	state.message[0] = '\0';
@@ -301,7 +305,7 @@ void sanitizeInput(char *letters) {
 		char c = letters[i];
 
 		if(c >= 'a' && c <= 'z'){
-			letters[last++] = c - 32;
+			letters[last++] = c - ('a' - 'A');
 		} else if(c >= 'A' && c <= 'Z'){
 			letters[last++] = c;
 		}

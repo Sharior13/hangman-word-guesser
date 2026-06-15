@@ -12,10 +12,13 @@ void drawHangman(int wrongCount){
 	"    |        / \\",
 	"    |" 
 	};
+	
+	//check if the wrong count exceeds the no. of body parts
 	if(parts > 6){
 		parts = 6;
 	}
 
+	//display hangman
     printf("\n");
     for(int i=0; i<=parts-1; i++){
         printf("%s\n", hangmanParts[i]);

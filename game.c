@@ -14,41 +14,51 @@ void loadSecretWord(char *word, int *wordSize){
 	*wordSize = strlen(word);
 }
 
+//give 25% of the words letters as hint
 void giveHint(char *word, char *displayedLetters){
 	int hintCount = round(strlen(word) * 0.25);
 
 	for(int i=0; i<hintCount; i++){
 		int randomIndex;
+		//loop if the random index is already given
 		do{
 			randomIndex = getRandomNumber(0, strlen(word));
 		} while(displayedLetters[randomIndex] != '_');
 
 		displayedLetters[randomIndex] = word[randomIndex];
 	}
+	
+	//set hint count as correctly guessed count
 	state.correctCount = hintCount;
 }
 
 void checkWord(){
+	//handle invalid input
 	if(strlen(state.letter) == 0){
 		strcpy(state.message, "Invalid input! Please enter letter or word only.");
 		state.correctFlag = 2;
 		return;
 	}
 
+	//handle multiple letters/string guesses
 	if(strlen(state.letter) > 1){
+		//handle whole word correctly guessed
 		if(strcmp(state.letter, state.secretWord) == 0){
 			strcpy(state.message, "Correct! You guessed the whole word!");
 			state.correctCount = state.secretWordSize;
 			strcpy(state.correctLetters, state.secretWord);
 			state.correctFlag = 1;
 		}
+		//handle wrong whole word guesses
 		else{
 			strcpy(state.message, "Wrong word guess!");
+			//check for any correct letters within the wrong whole word
 			for(int i=0; i<strlen(state.letter); i++){
 				int letterMatched = 0;
 				for(int j=0; j<state.secretWordSize; j++){
 					if(state.letter[i] == state.secretWord[j]){
 						letterMatched = 1;
+						//check if the letter isnt already guessed then set it as correct letters
 						if(state.letter[i] != state.correctLetters[j]){
 							state.correctLetters[j] = state.secretWord[j];
 							state.correctCount++;
@@ -56,14 +66,17 @@ void checkWord(){
 						}
 					}
 				}
+				//handle none correct letter
 				if(!letterMatched){
 					int alreadyWrong = 0;
+					//skip if wrong letter is already guessed
 					for(int j=0; j<state.wrongCount; j++){
 						if(state.letter[i] == state.wrongLetters[j]){
 							alreadyWrong = 1;
 							break;
 						}
 					}
+					//set the letter as wrong letter if not already guessed
 					if(!alreadyWrong){
 						if(state.wrongCount < MAX_WRONG_LENGTH){
 							state.wrongLetters[state.wrongCount] = state.letter[i];
@@ -75,12 +88,15 @@ void checkWord(){
 					}
 				}
 			}
+			//message for some correct letters within wrong whole word guesses
 			if(state.correctFlag == 1){
 				strcat(state.message, " But some letters were correct!");
 			}
 		}
 	}
+	//handle single letter guesses
 	else {
+		//check if the letter is already-guessed wrong letter
 		for(int i=0; i<state.wrongCount; i++){
 			if(state.letter[0] == state.wrongLetters[i]){
 				strcpy(state.message, "Already guessed! Try something else.");
@@ -90,22 +106,27 @@ void checkWord(){
 		}
 		if(state.correctFlag != 2){
 			for(int i=0; i<state.secretWordSize; i++){
+				//check if the letter matches the secret word and isnt already guessed
 				if(state.letter[0] == state.secretWord[i] && state.letter[0] != state.correctLetters[i]){
 					state.correctLetters[i] = state.secretWord[i];
 					state.correctCount++;
 					state.correctFlag = 1;
 				}
+				//handle already-guessed correct letter
 				else if(state.letter[0] == state.correctLetters[i]){
 					strcpy(state.message, "Already guessed! Try something else.");
 					state.correctFlag = 2;
 					break;
 				}
 			}
+			//messages for correct and incorrect guessed
 			if(state.correctFlag == 1){
 				strcpy(state.message, "Correct guess!");
 			}
 			else if(state.correctFlag == 0){
 				strcpy(state.message, "Incorrect guess!");
+				
+				//check if wrong count exceeds max wrong length
 				if(state.wrongCount < MAX_WRONG_LENGTH){
 					state.wrongLetters[state.wrongCount] = state.letter[0];
 					state.wrongCount++;
@@ -125,6 +146,7 @@ void setHighScore(int currentScore){
 	state.highScore = currentScore;
 }
 
+//calculate total score of each round 
 int calculateScore(){
 	int baseScore = state.correctCount * BASE_SCORE_PER_LETTER;
 	int penalty   = state.wrongCount * WRONG_GUESS_PENALTY;
@@ -139,9 +161,11 @@ int calculateScore(){
 	return finalScore;
 }
 
+//initialize the game
 void initGame(){
 	srand(time(NULL));
-
+	
+	//reset all game variables
 	state.secretWordSize = 0;
 	state.tryCount = 0;
 	state.wrongCount = 0;
@@ -159,6 +183,7 @@ void initGame(){
 		state.wrongLetters[i] = '\0';
 	}
 
+	//load secret word from file
 	loadSecretWord(state.secretWord, &state.secretWordSize);
 	for(int i=0; i<state.secretWordSize; i++){
 		state.correctLetters[i] = '_';
@@ -172,6 +197,7 @@ void initGame(){
 	printf("\n");
 }
 
+//display round stats, input guesses then check those guesses
 void updateGame(){
 	printf("\nRound: %d", state.round);
 	state.correctFlag = 0;
@@ -195,12 +221,14 @@ void updateGame(){
 	state.message[0] = '\0';
 	checkWord();
 
+	//return if invalid input
 	if(strlen(state.letter) == 0){
 		return;
 	}
 	state.tryCount++;
 }
 
+//check end condition
 int gameShouldEnd(){
 	if(state.correctCount == state.secretWordSize){
 		return 1;
@@ -213,6 +241,7 @@ int gameShouldEnd(){
 	}
 }
 
+//capitalize all input and remove invalid characters
 void sanitizeInput(char *letters) {
 	int len = strlen(letters);
 	int last = 0;

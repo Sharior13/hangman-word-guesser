@@ -1,6 +1,7 @@
 #ifndef GAME_H
 #define GAME_H
 
+//game constants
 #define MAX_WRONGS 6
 #define MAX_WORD_LENGTH 30
 #define MAX_WRONG_LENGTH 26

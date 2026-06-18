@@ -10,6 +10,7 @@
 #define WRONG_GUESS_PENALTY 30
 #define TRY_BONUS 200
 
+//game variables blueprint
 typedef struct{
 	char secretWord[MAX_WORD_LENGTH];
 	int secretWordSize, tryCount, wrongCount, correctCount, correctFlag;
@@ -20,7 +21,6 @@ typedef struct{
 extern GameState state;
 
 void initGame();
-// void updateGame();
 void checkWord();
 void loadSecretWord(char *word, int *wordSize);
 void giveHint(char *word, char *displayedLetters);
@@ -29,9 +29,7 @@ int getHighScore();
 void setHighScore(int currentScore);  
 int gameShouldEnd();
 void sanitizeInput(char *letters);
-// void flushInput();
 void resetVariables();
 int getRandomNumber(int MIN, int MAX);
-// void clearScreen();
 
 #endif

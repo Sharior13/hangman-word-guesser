@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <conio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <time.h>
@@ -243,43 +242,7 @@ void initGame(){
 		state.correctLetters[i] = '_';
 	}
 	giveHint(state.secretWord, state.correctLetters);
-	// printf("\n====================== Hangman Word Guesser ======================");
-	// printf("\nHighscore: %d", state.highScore);
-	// printf("\nRound: %d", state.round);
-	// printf("\nPress any key to start: ");
-	// getch();
-	// printf("\n");
 }
-
-//display round stats, input guesses then check those guesses
-// void updateGame(){
-// 	printf("\nRound: %d", state.round);
-// 	printf("\nWord: ");
-// 	for(int i=0; i<state.secretWordSize; i++){
-// 		printf("%c ", state.correctLetters[i]);
-// 	}
-// 	printf("\nLives left: %d", MAX_WRONGS - state.wrongCount);
-// 	printf("\nIncorrect letters: ");
-// 	for(int i=0; i<state.wrongCount; i++){
-// 		printf("%c ", state.wrongLetters[i]);
-// 	}
-// 	printf("\n");
-// 	if(strlen(state.message) > 0){
-// 		printf("\n%s", state.message);
-// 	}
-// 	printf("\nEnter a guess: ");
-// 	scanf("%29s", state.letter);
-// 	sanitizeInput(state.letter);
-// 	flushInput();
-// 	state.message[0] = '\0';
-// 	checkWord();
-
-// 	//return if invalid input
-// 	if(strlen(state.letter) == 0){
-// 		return;
-// 	}
-// 	state.tryCount++;
-// }
 
 //check end condition
 int gameShouldEnd(){
@@ -331,15 +294,6 @@ void resetVariables(){
 	
 }
 
-// void flushInput(){
-// 	int c;
-// 	while((c = getchar()) != '\n' && c != EOF);
-// }
-
 int getRandomNumber(int MIN, int MAX){
 	return (rand() % MAX) + MIN;
 }
-
-// void clearScreen(){
-// 	system("cls");
-// }

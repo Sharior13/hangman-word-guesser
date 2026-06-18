@@ -1,10 +1,55 @@
 #ifndef DRAWING_H
 #define DRAWING_H
 
+#include "raylib.h"
+
 //define application screen size
 #define SCREEN_WIDTH 1920
 #define SCREEN_HEIGHT 1080
 
-void drawHangman(int wrongCount);
+//colors used in game
+#define COLOR_BG (Color){ 15,  15,  20,  255 }
+#define COLOR_GALLOWS (Color){ 180, 180, 200, 255 }
+#define COLOR_BODY (Color){ 230, 100, 80,  255 }
+#define COLOR_TEXT (Color){ 220, 220, 235, 255 }
+#define COLOR_DIM (Color){ 120, 120, 140, 255 }
+#define COLOR_CORRECT (Color){ 80,  200, 120, 255 }
+#define COLOR_WRONG (Color){ 220, 80,  80,  255 }
+#define COLOR_HIGHLIGHT (Color){ 255, 200, 60,  255 }
+#define COLOR_PANEL (Color){ 25,  25,  35,  255 }
+#define COLOR_BORDER (Color){ 50,  50,  70,  255 }
+
+//start screen button layout
+#define START_BTN_WIDTH 360
+#define START_BTN_HEIGHT 80
+#define START_BTN_GAP 30
+#define START_BTN_TOP_Y 650
+
+//button blueprint
+typedef struct{
+    Rectangle bounds;
+    const char *label;
+    int isHovered;
+} Button;
+
+//create factory function to make one individual button
+Button createButton(int x, int y, int width, int height, const char *label);
+
+//start screen buttons
+typedef struct{
+    Button play;
+    Button settings;
+    Button quit;
+} StartScreenButtons;
+
+//create factory function for making start screen buttons
+StartScreenButtons createStartScreenButtons();
+//factory function for back button
+Button createBackButton();
+
+//drawing functions
+void drawStartScreen(int highScore, int round, StartScreenButtons *buttons);
+void drawButton(Button *btn);
+int isButtonClicked(Button *btn, Vector2 mousePos, int mousePressed);
 
 #endif

@@ -5,7 +5,7 @@
 #include <math.h>
 #include "game.h"
 
-GameState state = { .round = 1, .score = 0 };
+GameState state = { .round = 1, .score = 0, .gameWon = 0 };
 
 //load secret word from file
 void loadSecretWord(char *word, int *wordSize){
@@ -267,7 +267,8 @@ void sanitizeInput(char *letters) {
 
 		if(c >= 'a' && c <= 'z'){
 			letters[last++] = c - ('a' - 'A');
-		} else if(c >= 'A' && c <= 'Z'){
+		}
+		else if(c >= 'A' && c <= 'Z'){
 			letters[last++] = c;
 		}
 	}

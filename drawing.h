@@ -2,6 +2,7 @@
 #define DRAWING_H
 
 #include "raylib.h"
+#include "game.h"
 
 //define application screen size
 #define SCREEN_WIDTH 1920
@@ -25,6 +26,13 @@
 #define START_BTN_GAP 30
 #define START_BTN_TOP_Y 650
 
+//game over screen button layout
+#define GAMEOVER_PANEL_WIDTH 900
+#define GAMEOVER_PANEL_HEIGHT 520
+#define GAMEOVER_BTN_WIDTH 360
+#define GAMEOVER_BTN_HEIGHT 80
+#define GAMEOVER_BTN_GAP 40
+
 //button blueprint
 typedef struct{
     Rectangle bounds;
@@ -32,7 +40,7 @@ typedef struct{
     int isHovered;
 } Button;
 
-//create factory function to make one individual button
+//factory function to make one individual button
 Button createButton(int x, int y, int width, int height, const char *label);
 
 //start screen buttons
@@ -42,13 +50,24 @@ typedef struct{
     Button quit;
 } StartScreenButtons;
 
-//create factory function for making start screen buttons
+//game over screen buttons
+typedef struct{
+    Button tryAgain;
+    Button mainMenu;
+} GameOverButtons;
+
+//factory function for making start screen buttons
 StartScreenButtons createStartScreenButtons();
 //factory function for back button
 Button createBackButton();
+//factory function for making game over buttons
+GameOverButtons createGameOverButtons();
 
 //drawing functions
 void drawStartScreen(int highScore, int round, StartScreenButtons *buttons);
+void drawSettingsScreen(Button *backBtn);
+void drawPlayingScreen(GameState *state, char *currentInput);
+void drawGameOver(int won, const char *secretWord, int score, GameOverButtons *buttons);
 void drawButton(Button *btn);
 int isButtonClicked(Button *btn, Vector2 mousePos, int mousePressed);
 

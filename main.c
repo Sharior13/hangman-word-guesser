@@ -1,5 +1,7 @@
+#include <string.h>
 #include "game.h"
 #include "drawing.h"
+#include "input.h"
 #include "raylib.h"
 
 //game screen states
@@ -9,7 +11,6 @@ typedef enum{
 	SCREEN_PLAYING,
 	SCREEN_GAMEOVER
 } Screen;
-
 
 int main(){
 	//make the game full screen
@@ -21,13 +22,18 @@ int main(){
 
 	//initialize screen state
 	Screen currentScreen = SCREEN_START;
-	int gameWon = 0;
 
 	//initialize buttons in start scren
 	StartScreenButtons startButtons = createStartScreenButtons();
 	Button backBtn = createBackButton();
 
+	//initialize buttons in gameover screen
+	GameOverButtons gameOverButtons = createGameOverButtons();
 
+	//initialize text inputs
+	TextInput guessInput = createTextInput();
+
+	//prepare first round
 	initGame();
 
 	//loop until user closes the window
@@ -40,13 +46,12 @@ int main(){
 			//user clicks play button
 			if(isButtonClicked(&startButtons.play, mousePos, mouseClicked)){
 				currentScreen = SCREEN_PLAYING;
+				clearInput(&guessInput);
 				state.message[0] = '\0';
-				//write code to clear ui input buffer
 			}
 			//user clicks settings button
 			if(isButtonClicked(&startButtons.settings, mousePos, mouseClicked)){
 				currentScreen = SCREEN_SETTINGS;
-				//write code for settings
 			}
 			//user clicks quit button
 			if(isButtonClicked(&startButtons.quit, mousePos, mouseClicked)){
@@ -62,15 +67,62 @@ int main(){
 			}
 		}
 		else if(currentScreen == SCREEN_PLAYING){
-			//write code to enter guesses
+			updateInput(&guessInput);
+
+			//submit guess on user pressing enter
+            if(IsKeyPressed(KEY_ENTER) && guessInput.length > 0){
+                strncpy(state.letter, guessInput.buffer, INPUT_MAX);
+                state.letter[INPUT_MAX] = '\0';
+                sanitizeInput(state.letter);
+ 
+                state.correctFlag = 0;
+                state.message[0]  = '\0';
+ 
+                if(strlen(state.letter) > 0){
+                    checkWord();
+                    state.tryCount++;
+                }
+                clearInput(&guessInput);
+ 
+                //check end condition after the guess
+                if(gameShouldEnd()){
+                    state.score += calculateScore();
+                    if(state.score > state.highScore){
+                        setHighScore(state.score);
+                        state.highScore = state.score;
+                    }
+                    state.gameWon = (state.correctCount == state.secretWordSize);
+                    currentScreen = SCREEN_GAMEOVER;
+                }
+            }
 		}
 		else if(currentScreen == SCREEN_GAMEOVER){
 			//handle replay/exit logic 
+    		int tryAgainTriggered = isButtonClicked(&gameOverButtons.tryAgain, mousePos, mouseClicked);
+			int mainMenuTriggered = isButtonClicked(&gameOverButtons.mainMenu, mousePos, mouseClicked);
+ 
+			//check is user clicked try again
+            if(tryAgainTriggered){
+                if (state.gameWon){
+                    state.round++;
+                }
+				else{
+                    state.round = 1;
+                    state.score = 0;
+                }
+                initGame();
+                clearInput(&guessInput);
+                currentScreen = SCREEN_PLAYING;
+            }
+			//check is user clicked main menu
+            else if(mainMenuTriggered){
+                currentScreen = SCREEN_START;
+            }
 		}
 
 		//start drawing
 		BeginDrawing();
-		ClearBackground(RAYWHITE);
+		ClearBackground(COLOR_BG);
 
 		if(currentScreen == SCREEN_START){
 			//draw start screen
@@ -78,22 +130,18 @@ int main(){
 		}
 		else if(currentScreen == SCREEN_SETTINGS){
 			//draw settings screen
-			const char *title = "SETTINGS";
-            int textSize = 90;
-            int textWidth = MeasureText(title, textSize);
-            DrawText(title, (SCREEN_WIDTH - textWidth) / 2, 260, textSize, COLOR_HIGHLIGHT);
- 
-            const char *note = "Settings options coming soon.";
-            int noteWidth = MeasureText(note, 32);
-            DrawText(note, (SCREEN_WIDTH - noteWidth) / 2, 420, 32, COLOR_DIM);
- 
-            drawButton(&backBtn);
+			drawSettingsScreen(&backBtn);
 		}
 		else if(currentScreen == SCREEN_PLAYING){
 			//draw main game (hangman, guesses, lives etc)
+			drawPlayingScreen(&state, guessInput.buffer);
 		}
 		else if(currentScreen == SCREEN_GAMEOVER){
-			//draw game over screen
+			//draw last game state behind the overlay
+			drawPlayingScreen(&state, guessInput.buffer);
+
+			//draw game over screen overlay
+			drawGameOver(state.gameWon, state.secretWord, state.score, &gameOverButtons);
 		}
 		EndDrawing();
 	}

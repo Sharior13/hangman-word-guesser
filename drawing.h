@@ -53,6 +53,7 @@ typedef struct{
 //game over screen buttons
 typedef struct{
     Button tryAgain;
+    Button playAgain;
     Button mainMenu;
 } GameOverButtons;
 

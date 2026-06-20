@@ -24,12 +24,12 @@ void drawHangman(int wrongCount){
     DrawRectangle(gallowsX + 210, gallowsY, thickness, 100, COLOR_GALLOWS);
  
     //draw head
-    if(parts >= 2){
+    if(parts >= 1){
         DrawCircleLines(gallowsX + 215, gallowsY + 150, 50, COLOR_BODY);
         DrawCircle(gallowsX + 215, gallowsY + 150, 46, Fade(COLOR_BODY, 0.15f));
     }
     //draw body
-    if(parts >= 3){
+    if(parts >= 2){
         DrawLineEx(
             (Vector2){ gallowsX + 215, gallowsY + 200 },
             (Vector2){ gallowsX + 215, gallowsY + 400 },
@@ -37,7 +37,7 @@ void drawHangman(int wrongCount){
         );
     }
     //draw left arm
-    if(parts >= 4){
+    if(parts >= 3){
         DrawLineEx(
             (Vector2){ gallowsX + 215, gallowsY + 260 },
             (Vector2){ gallowsX + 130, gallowsY + 340 },
@@ -45,22 +45,23 @@ void drawHangman(int wrongCount){
         );
     }
     //draw right arm
-    if(parts >= 5){
+    if(parts >= 4){
         DrawLineEx(
             (Vector2){ gallowsX + 215, gallowsY + 260 },
             (Vector2){ gallowsX + 300, gallowsY + 340 },
             thickness, COLOR_BODY
         );
     }
-    //legs
-    if(parts >= 6){
-        //draw left leg
+    //draw left leg
+    if(parts >= 5){
         DrawLineEx(
             (Vector2){ gallowsX + 215, gallowsY + 400 },
             (Vector2){ gallowsX + 130, gallowsY + 510 },
             thickness, COLOR_BODY
         );
-        //draw right leg
+    }
+    //draw right leg
+    if(parts >= 6){
         DrawLineEx(
             (Vector2){ gallowsX + 215, gallowsY + 400 },
             (Vector2){ gallowsX + 300, gallowsY + 510 },
@@ -303,7 +304,7 @@ void drawGameOver(int won, const char *secretWord, int score, GameOverButtons *b
     DrawText(scoreBuf, panelX + (panelW - scoreWidth) / 2, panelY + 250, 44, COLOR_HIGHLIGHT);
 
     //draw buttons
-    drawButton(&buttons->tryAgain);
+    drawButton(won ? &buttons->playAgain: &buttons->tryAgain);
     drawButton(&buttons->mainMenu);
 }
 
@@ -353,6 +354,7 @@ GameOverButtons createGameOverButtons(){
  
     GameOverButtons buttons = {
         .tryAgain = createButton(startX, btnY, GAMEOVER_BTN_WIDTH, GAMEOVER_BTN_HEIGHT, "Try Again"),
+        .playAgain = createButton(startX, btnY, GAMEOVER_BTN_WIDTH, GAMEOVER_BTN_HEIGHT, "Play Again"),
         .mainMenu = createButton(startX + GAMEOVER_BTN_WIDTH + GAMEOVER_BTN_GAP, btnY, GAMEOVER_BTN_WIDTH, GAMEOVER_BTN_HEIGHT, "Main Menu"),
     };
     return buttons;

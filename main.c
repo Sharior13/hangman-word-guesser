@@ -72,7 +72,7 @@ int main(){
 			//submit guess on user pressing enter
             if(IsKeyPressed(KEY_ENTER) && guessInput.length > 0){
                 strncpy(state.letter, guessInput.buffer, INPUT_MAX);
-                state.letter[INPUT_MAX] = '\0';
+                state.letter[INPUT_MAX - 1] = '\0';
                 sanitizeInput(state.letter);
  
                 state.correctFlag = 0;
@@ -98,11 +98,11 @@ int main(){
 		}
 		else if(currentScreen == SCREEN_GAMEOVER){
 			//handle replay/exit logic 
-    		int tryAgainTriggered = isButtonClicked(&gameOverButtons.tryAgain, mousePos, mouseClicked);
+    		int retryTriggered = isButtonClicked(state.gameWon ? &gameOverButtons.playAgain: &gameOverButtons.tryAgain, mousePos, mouseClicked);
 			int mainMenuTriggered = isButtonClicked(&gameOverButtons.mainMenu, mousePos, mouseClicked);
  
 			//check is user clicked try again
-            if(tryAgainTriggered){
+            if(retryTriggered){
                 if (state.gameWon){
                     state.round++;
                 }
@@ -116,6 +116,11 @@ int main(){
             }
 			//check is user clicked main menu
             else if(mainMenuTriggered){
+				initGame();
+                clearInput(&guessInput);
+				state.round = 1;
+                state.score = 0;
+				state.message[0] = '\0';
                 currentScreen = SCREEN_START;
             }
 		}

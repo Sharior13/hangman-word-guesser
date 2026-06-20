@@ -18,7 +18,7 @@ void loadSecretWord(char *word, int *wordSize){
 	
 	char fileWords[MAX_WORD_LENGTH];
 	int wordCount=0;
-	while(fscanf(fp,"%s",fileWords)!=EOF)
+	while(fscanf(fp,"%29s",fileWords)!=EOF)
 	{
 		wordCount ++;
 		
@@ -32,7 +32,7 @@ void loadSecretWord(char *word, int *wordSize){
 	int random=getRandomNumber(0,wordCount);
 	rewind(fp);
 	int currentline=0;
-	while(fscanf(fp,"%s",fileWords)!=EOF)
+	while(fscanf(fp,"%29s",fileWords)!=EOF)
 	{
 		if(currentline==random)
 		{
@@ -53,11 +53,17 @@ void giveHint(char *word, char *displayedLetters){
 	state.correctCount = hintCount;
 	
 	for(int i=0; i<hintCount; i++){
+		//guard against infinite loop
+		if(state.correctCount >= state.secretWordSize){
+			break;
+		}
+		
 		int randomIndex;
 		//loop if the random index is already given
 		do{
 			randomIndex = getRandomNumber(0, strlen(word));
-		} while(displayedLetters[randomIndex] != '_');
+		}
+		while(displayedLetters[randomIndex] != '_');
 
 		displayedLetters[randomIndex] = word[randomIndex];
 		//check if the hinted letter exists in other places

@@ -65,9 +65,10 @@ Button createBackButton();
 GameOverButtons createGameOverButtons();
 
 //drawing functions
+void drawHeart(Texture2D heartTexture, int x, int y, int size, Color tint);
 void drawStartScreen(int highScore, int round, StartScreenButtons *buttons);
 void drawSettingsScreen(Button *backBtn);
-void drawPlayingScreen(GameState *state, char *currentInput);
+void drawPlayingScreen(Texture2D heartTexture, GameState *state, char *currentInput);
 void drawGameOver(int won, const char *secretWord, int score, GameOverButtons *buttons);
 void drawButton(Button *btn);
 int isButtonClicked(Button *btn, Vector2 mousePos, int mousePressed);

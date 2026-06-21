@@ -33,8 +33,14 @@ int main(){
 	//initialize text inputs
 	TextInput guessInput = createTextInput();
 
+	//load heart icon texture (must happen after InitWindow)
+	Texture2D heartTexture = LoadTexture("assets/heart.png");
+
 	//prepare first round
 	initGame();
+
+	//track the pause between the game ending and the game over panel appearing
+	float gameOverRevealTimer = 0.0f;
 
 	//loop until user closes the window
 	while(!WindowShouldClose()){
@@ -48,6 +54,7 @@ int main(){
 				currentScreen = SCREEN_PLAYING;
 				clearInput(&guessInput);
 				state.message[0] = '\0';
+				gameOverRevealTimer = 0.0f;
 			}
 			//user clicks settings button
 			if(isButtonClicked(&startButtons.settings, mousePos, mouseClicked)){
@@ -67,34 +74,48 @@ int main(){
 			}
 		}
 		else if(currentScreen == SCREEN_PLAYING){
-			updateInput(&guessInput);
+			//freeze input while the final hangman pose is being revealed
+			if(gameOverRevealTimer <= 0.0f){
+				updateInput(&guessInput);
 
-			//submit guess on user pressing enter
-            if(IsKeyPressed(KEY_ENTER) && guessInput.length > 0){
-                strncpy(state.letter, guessInput.buffer, INPUT_MAX);
-                state.letter[INPUT_MAX - 1] = '\0';
-                sanitizeInput(state.letter);
- 
-                state.correctFlag = 0;
-                state.message[0]  = '\0';
- 
-                if(strlen(state.letter) > 0){
-                    checkWord();
-                    state.tryCount++;
-                }
-                clearInput(&guessInput);
- 
-                //check end condition after the guess
-                if(gameShouldEnd()){
-                    state.score += calculateScore();
-                    if(state.score > state.highScore){
-                        setHighScore(state.score);
-                        state.highScore = state.score;
-                    }
-                    state.gameWon = (state.correctCount == state.secretWordSize);
-                    currentScreen = SCREEN_GAMEOVER;
-                }
-            }
+				//submit guess on user pressing enter
+				if(IsKeyPressed(KEY_ENTER) && guessInput.length > 0){
+					strncpy(state.letter, guessInput.buffer, INPUT_MAX);
+					state.letter[INPUT_MAX - 1] = '\0';
+					sanitizeInput(state.letter);
+
+					state.correctFlag = 0;
+					state.message[0]  = '\0';
+
+					if(strlen(state.letter) > 0){
+						checkWord();
+						state.tryCount++;
+					}
+					clearInput(&guessInput);
+
+					//check end condition after the guess
+					if(gameShouldEnd()){
+						state.score += calculateScore();
+						if(state.score > state.highScore){
+							setHighScore(state.score);
+							state.highScore = state.score;
+						}
+						state.gameWon = (state.correctCount == state.secretWordSize);
+						//don't switch screens yet — let the player see the final
+						//hangman pose (including the X eyes on a loss) for a beat
+						//before the game-over panel covers it
+						gameOverRevealTimer = GAMEOVER_REVEAL_DELAY;
+					}
+				}
+			}
+			else{
+				//show the game-over panel after the reveal delay has passed
+				gameOverRevealTimer -= GetFrameTime();
+				if(gameOverRevealTimer <= 0.0f){
+					gameOverRevealTimer = 0.0f;
+					currentScreen = SCREEN_GAMEOVER;
+				}
+			}
 		}
 		else if(currentScreen == SCREEN_GAMEOVER){
 			//handle replay/exit logic 
@@ -112,6 +133,7 @@ int main(){
                 }
                 initGame();
                 clearInput(&guessInput);
+                gameOverRevealTimer = 0.0f;
                 currentScreen = SCREEN_PLAYING;
             }
 			//check is user clicked main menu
@@ -139,11 +161,11 @@ int main(){
 		}
 		else if(currentScreen == SCREEN_PLAYING){
 			//draw main game (hangman, guesses, lives etc)
-			drawPlayingScreen(&state, guessInput.buffer);
+			drawPlayingScreen(heartTexture, &state, guessInput.buffer);
 		}
 		else if(currentScreen == SCREEN_GAMEOVER){
 			//draw last game state behind the overlay
-			drawPlayingScreen(&state, guessInput.buffer);
+			drawPlayingScreen(heartTexture, &state, guessInput.buffer);
 
 			//draw game over screen overlay
 			drawGameOver(state.gameWon, state.secretWord, state.score, &gameOverButtons);
@@ -151,6 +173,8 @@ int main(){
 		EndDrawing();
 	}
 
+	//free GPU resources before closing
+	UnloadTexture(heartTexture);
 	CloseWindow();
 	return 0;
 }

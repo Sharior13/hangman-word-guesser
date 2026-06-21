@@ -10,6 +10,9 @@
 #define WRONG_GUESS_PENALTY 30
 #define TRY_BONUS 200
 
+//how long to show the final hangman pose before the game over panel appears
+#define GAMEOVER_REVEAL_DELAY 1.0f
+
 //game variables blueprint
 typedef struct{
 	char secretWord[MAX_WORD_LENGTH];

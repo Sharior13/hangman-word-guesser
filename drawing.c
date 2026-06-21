@@ -81,22 +81,41 @@ void drawHangman(int wrongCount){
  
 void drawWordDisplay(const char *correctLetters, int wordSize){
     int y = 380;
+    int panelWidth = 960;
+    int panelMargin = 60;
+    int maxWidth = panelWidth - panelMargin * 2;
+
     int spacing = 92;
+    int fontSize = 68;
+    int minSpacing = 28;
+    
+    //shrink if the word is too wide to fit
     int totalWidth = wordSize * spacing;
+    while(totalWidth > maxWidth && spacing > minSpacing){
+        spacing -= 4;
+        fontSize -= 3;
+        totalWidth = wordSize * spacing;
+    }
+
     //center in the right half
     int startX = 960 + (960 - totalWidth) / 2;
- 
+
+    int underlineWidth = spacing - 28;
+    if(underlineWidth < 16){
+        underlineWidth = 16;
+    }
+
     for(int i=0; i<wordSize; i++){
         int x = startX + i * spacing;
  
         //draw underline
-        DrawRectangle(x, y + 72, 64, 5, COLOR_DIM);
+        DrawRectangle(x, y + 72, underlineWidth, 5, COLOR_DIM);
  
         //assign character to buffer
         char buf[2] = { correctLetters[i], '\0' };
         if(correctLetters[i] != '_'){
             Color c = (correctLetters[i] != '\0') ? COLOR_CORRECT : COLOR_TEXT;
-            DrawText(buf, x + 10, y, 68, c);
+            DrawText(buf, x + 10, y, fontSize, c);
         }
     }
 }
@@ -134,7 +153,14 @@ void drawMessage(const char *message, int correctFlag){
     DrawText(message, (SCREEN_WIDTH - msgWidth) / 2, 860, 34, c);
 }
  
-void drawHUD(int round, int score, int highScore, int lives){
+//draw heart icon from loaded texture
+void drawHeart(Texture2D heartTexture, int x, int y, int size, Color tint){
+    Rectangle source = { 0, 0, (float)heartTexture.width, (float)heartTexture.height };
+    Rectangle dest    = { x - size / 2.0f, y - size / 2.0f, (float)size, (float)size };
+    DrawTexturePro(heartTexture, source, dest, (Vector2){ 0, 0 }, 0.0f, tint);
+}
+
+void drawHUD(Texture2D heartTexture, int round, int score, int highScore, int lives){
     //draw top bar
     DrawRectangle(0, 0, SCREEN_WIDTH, 100, COLOR_PANEL);
     DrawRectangle(0, 99, SCREEN_WIDTH, 3, COLOR_BORDER);
@@ -157,8 +183,8 @@ void drawHUD(int round, int score, int highScore, int lives){
     int heartX = 1000, heartY = 580;
     DrawText("Lives:", heartX, heartY, 34, COLOR_DIM);
     for(int i=0; i<6; i++){
-        Color heartColor = (i < lives) ? COLOR_CORRECT : COLOR_BORDER;
-        DrawText("♥", heartX + 130 + i * 48, heartY, 38, heartColor);
+        Color heartTint = (i < lives) ? WHITE : Fade(GRAY, 0.4f);
+        drawHeart(heartTexture, heartX + 150 + i * 48, heartY + 20, 40, heartTint);
     }
 }
  
@@ -252,12 +278,12 @@ void drawSettingsScreen(Button *backBtn){
     drawButton(backBtn);
 }
 
-void drawPlayingScreen(GameState *state, char *currentInput){
+void drawPlayingScreen(Texture2D heartTexture, GameState *state, char *currentInput){
     //left/right panel divider
     DrawRectangle(960, 100, 3, SCREEN_HEIGHT - 100, COLOR_BORDER);
  
     //HUD (top bar)
-    drawHUD(state->round, state->score, state->highScore, MAX_WRONGS - state->wrongCount);
+    drawHUD(heartTexture, state->round, state->score, state->highScore, MAX_WRONGS - state->wrongCount);
  
     //hangman figure
     drawHangman(state->wrongCount);
@@ -291,12 +317,10 @@ void drawGameOver(int won, const char *secretWord, int score, GameOverButtons *b
     int titleW = MeasureText(title, titleSize);
     DrawText(title, panelX + (panelW - titleW) / 2, panelY + 50, titleSize, titleColor);
  
-    if(!won){
-        char wordBuf[64];
-        snprintf(wordBuf, sizeof(wordBuf), "The word was: %s", secretWord);
-        int wordWidth = MeasureText(wordBuf, 38);
-        DrawText(wordBuf, panelX + (panelW - wordWidth) / 2, panelY + 175, 38, COLOR_TEXT);
-    }
+    char wordBuf[64];
+    snprintf(wordBuf, sizeof(wordBuf), "The word was: %s", secretWord);
+    int wordWidth = MeasureText(wordBuf, 38);
+    DrawText(wordBuf, panelX + (panelW - wordWidth) / 2, panelY + 175, 38, COLOR_TEXT);
  
     char scoreBuf[64];
     snprintf(scoreBuf, sizeof(scoreBuf), "Score: %d", score);

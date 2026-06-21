@@ -9,19 +9,25 @@ typedef enum{
 	SCREEN_START,
 	SCREEN_SETTINGS,
 	SCREEN_PLAYING,
+	SCREEN_PAUSED,
 	SCREEN_GAMEOVER
 } Screen;
 
 int main(){
-	//make the game full screen
-	SetConfigFlags(FLAG_FULLSCREEN_MODE);
+	//make the game windowed full screen
+	SetConfigFlags(FLAG_WINDOW_UNDECORATED | FLAG_WINDOW_MAXIMIZED);
 	
 	//initialize game window
 	InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Hangman Word Guesser");
 	SetTargetFPS(60);
 
+	//dont close program on pressing escape button
+	SetExitKey(KEY_NULL);
+
 	//initialize screen state
 	Screen currentScreen = SCREEN_START;
+	//remember which screen to return to after leaving settings
+	Screen previousScreen = SCREEN_START;
 
 	//initialize buttons in start scren
 	StartScreenButtons startButtons = createStartScreenButtons();
@@ -29,6 +35,9 @@ int main(){
 
 	//initialize buttons in gameover screen
 	GameOverButtons gameOverButtons = createGameOverButtons();
+
+	//initialize buttons in pause menu
+	PauseButtons pauseButtons = createPauseButtons();
 
 	//initialize text inputs
 	TextInput guessInput = createTextInput();
@@ -58,6 +67,7 @@ int main(){
 			}
 			//user clicks settings button
 			if(isButtonClicked(&startButtons.settings, mousePos, mouseClicked)){
+				previousScreen = SCREEN_START;
 				currentScreen = SCREEN_SETTINGS;
 			}
 			//user clicks quit button
@@ -68,14 +78,19 @@ int main(){
 		else if(currentScreen == SCREEN_SETTINGS){
 			//write settings logic
 
-			//exiting settings menu logic
+			//exiting settings menu logic — return to wherever Settings was opened from
 			if(isButtonClicked(&backBtn, mousePos, mouseClicked) || IsKeyPressed(KEY_ESCAPE)){
-				currentScreen = SCREEN_START;
+				currentScreen = previousScreen;
 			}
 		}
 		else if(currentScreen == SCREEN_PLAYING){
-			//freeze input while the final hangman pose is being revealed
-			if(gameOverRevealTimer <= 0.0f){
+			//pause the game
+			if(gameOverRevealTimer <= 0.0f && IsKeyPressed(KEY_ESCAPE)){
+				currentScreen = SCREEN_PAUSED;
+			}
+
+			//freeze input while the final hangman pose is being revealed and skip entirely if the player just paused this frame
+			if(currentScreen == SCREEN_PLAYING && gameOverRevealTimer <= 0.0f){
 				updateInput(&guessInput);
 
 				//submit guess on user pressing enter
@@ -108,13 +123,34 @@ int main(){
 					}
 				}
 			}
-			else{
-				//show the game-over panel after the reveal delay has passed
+			else if(currentScreen == SCREEN_PLAYING){
+				//show the game over panel once the reveal delay has passed
 				gameOverRevealTimer -= GetFrameTime();
 				if(gameOverRevealTimer <= 0.0f){
 					gameOverRevealTimer = 0.0f;
 					currentScreen = SCREEN_GAMEOVER;
 				}
+			}
+		}
+		else if(currentScreen == SCREEN_PAUSED){
+			//go back to the game or via escape as shortcut
+			if(isButtonClicked(&pauseButtons.resume, mousePos, mouseClicked) || IsKeyPressed(KEY_ESCAPE)){
+				currentScreen = SCREEN_PLAYING;
+			}
+			//open settings remembering to return to the pause menu afterward
+			else if(isButtonClicked(&pauseButtons.settings, mousePos, mouseClicked)){
+				previousScreen = SCREEN_PAUSED;
+				currentScreen = SCREEN_SETTINGS;
+			}
+			//quit to main menu
+			else if(isButtonClicked(&pauseButtons.mainMenu, mousePos, mouseClicked)){
+				initGame();
+				clearInput(&guessInput);
+				state.round = 1;
+				state.score = 0;
+				state.message[0] = '\0';
+				gameOverRevealTimer = 0.0f;
+				currentScreen = SCREEN_START;
 			}
 		}
 		else if(currentScreen == SCREEN_GAMEOVER){
@@ -162,6 +198,13 @@ int main(){
 		else if(currentScreen == SCREEN_PLAYING){
 			//draw main game (hangman, guesses, lives etc)
 			drawPlayingScreen(heartTexture, &state, guessInput.buffer);
+		}
+		else if(currentScreen == SCREEN_PAUSED){
+			//draw the frozen game state behind the pause overlay
+			drawPlayingScreen(heartTexture, &state, guessInput.buffer);
+
+			//draw pause menu overlay
+			drawPauseMenu(&pauseButtons);
 		}
 		else if(currentScreen == SCREEN_GAMEOVER){
 			//draw last game state behind the overlay

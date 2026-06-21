@@ -332,6 +332,25 @@ void drawGameOver(int won, const char *secretWord, int score, GameOverButtons *b
     drawButton(&buttons->mainMenu);
 }
 
+void drawPauseMenu(PauseButtons *buttons){
+    //dim overlay over the paused game behind it
+    DrawRectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, Fade(BLACK, 0.6f));
+
+    int panelX = (SCREEN_WIDTH  - PAUSE_PANEL_WIDTH)  / 2;
+    int panelY = (SCREEN_HEIGHT - PAUSE_PANEL_HEIGHT) / 2;
+
+    DrawRectangleRounded((Rectangle){panelX, panelY, PAUSE_PANEL_WIDTH, PAUSE_PANEL_HEIGHT}, 0.08f, 12, COLOR_PANEL);
+    DrawRectangleRoundedLines((Rectangle){panelX, panelY, PAUSE_PANEL_WIDTH, PAUSE_PANEL_HEIGHT}, 0.08f, 12, 2.0f, COLOR_BORDER);
+
+    const char *title = "PAUSED";
+    int titleW = MeasureText(title, PAUSE_TITLE_SIZE);
+    DrawText(title, (SCREEN_WIDTH - titleW) / 2, panelY + 80, PAUSE_TITLE_SIZE, COLOR_HIGHLIGHT);
+
+    drawButton(&buttons->resume);
+    drawButton(&buttons->settings);
+    drawButton(&buttons->mainMenu);
+}
+
 //check button collision
 int isButtonClicked(Button *btn, Vector2 mousePos, int mousePressed){
     btn->isHovered = CheckCollisionPointRec(mousePos, btn->bounds);
@@ -380,6 +399,23 @@ GameOverButtons createGameOverButtons(){
         .tryAgain = createButton(startX, btnY, GAMEOVER_BTN_WIDTH, GAMEOVER_BTN_HEIGHT, "Try Again"),
         .playAgain = createButton(startX, btnY, GAMEOVER_BTN_WIDTH, GAMEOVER_BTN_HEIGHT, "Play Again"),
         .mainMenu = createButton(startX + GAMEOVER_BTN_WIDTH + GAMEOVER_BTN_GAP, btnY, GAMEOVER_BTN_WIDTH, GAMEOVER_BTN_HEIGHT, "Main Menu"),
+    };
+    return buttons;
+}
+
+//factory function for creating pause menu buttons
+PauseButtons createPauseButtons(){
+    int panelX = (SCREEN_WIDTH  - PAUSE_PANEL_WIDTH)  / 2;
+    int panelY = (SCREEN_HEIGHT - PAUSE_PANEL_HEIGHT) / 2;
+
+    int x = panelX + (PAUSE_PANEL_WIDTH - PAUSE_BTN_WIDTH) / 2;
+    int rowHeight = PAUSE_BTN_HEIGHT + PAUSE_BTN_GAP;
+    int firstBtnY = panelY + 220;
+
+    PauseButtons buttons = {
+        .resume = createButton(x, firstBtnY + rowHeight * 0, PAUSE_BTN_WIDTH, PAUSE_BTN_HEIGHT, "Resume"),
+        .settings = createButton(x, firstBtnY + rowHeight * 1, PAUSE_BTN_WIDTH, PAUSE_BTN_HEIGHT, "Settings"),
+        .mainMenu = createButton(x, firstBtnY + rowHeight * 2, PAUSE_BTN_WIDTH, PAUSE_BTN_HEIGHT, "Main Menu"),
     };
     return buttons;
 }

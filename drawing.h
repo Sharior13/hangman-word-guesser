@@ -26,12 +26,20 @@
 #define START_BTN_GAP 30
 #define START_BTN_TOP_Y 650
 
-//game over screen button layout
+//game over screen layout
 #define GAMEOVER_PANEL_WIDTH 900
 #define GAMEOVER_PANEL_HEIGHT 520
 #define GAMEOVER_BTN_WIDTH 360
 #define GAMEOVER_BTN_HEIGHT 80
 #define GAMEOVER_BTN_GAP 40
+
+//pause menu layout
+#define PAUSE_BTN_WIDTH 360
+#define PAUSE_BTN_HEIGHT 80
+#define PAUSE_BTN_GAP 30
+#define PAUSE_PANEL_WIDTH 600
+#define PAUSE_PANEL_HEIGHT 560
+#define PAUSE_TITLE_SIZE 70
 
 //button blueprint
 typedef struct{
@@ -57,12 +65,21 @@ typedef struct{
     Button mainMenu;
 } GameOverButtons;
 
+//pause menu buttons
+typedef struct{
+    Button resume;
+    Button settings;
+    Button mainMenu;
+} PauseButtons;
+
 //factory function for making start screen buttons
 StartScreenButtons createStartScreenButtons();
 //factory function for back button
 Button createBackButton();
 //factory function for making game over buttons
 GameOverButtons createGameOverButtons();
+//factory function for making pause menu buttons
+PauseButtons createPauseButtons();
 
 //drawing functions
 void drawHeart(Texture2D heartTexture, int x, int y, int size, Color tint);
@@ -70,6 +87,7 @@ void drawStartScreen(int highScore, int round, StartScreenButtons *buttons);
 void drawSettingsScreen(Button *backBtn);
 void drawPlayingScreen(Texture2D heartTexture, GameState *state, char *currentInput);
 void drawGameOver(int won, const char *secretWord, int score, GameOverButtons *buttons);
+void drawPauseMenu(PauseButtons *buttons);
 void drawButton(Button *btn);
 int isButtonClicked(Button *btn, Vector2 mousePos, int mousePressed);
 

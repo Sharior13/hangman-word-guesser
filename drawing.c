@@ -419,3 +419,80 @@ PauseButtons createPauseButtons(){
     };
     return buttons;
 }
+
+//factory function for loading all ui sound effects
+UISounds loadUISounds(){
+    UISounds sounds = {
+        .click = LoadSound("assets/click.wav"),
+        .correct = LoadSound("assets/correct.wav"),
+        .wrong = LoadSound("assets/wrong.wav"),
+    };
+    return sounds;
+}
+
+//factory function for loading bgm
+BackgroundMusic loadBackgroundMusic(const char *fileName1, const char *fileName2, const char *fileName3, float volume){
+    BackgroundMusic music = { .trackCount = 0, .currentTrack = 0, .volume = volume };
+
+    const char *fileNames[MAX_MUSIC_TRACKS] = { fileName1, fileName2, fileName3 };
+
+    for(int i=0; i<MAX_MUSIC_TRACKS; i++){
+        if(fileNames[i] == NULL){
+            continue;
+        }
+        music.tracks[music.trackCount] = LoadMusicStream(fileNames[i]);
+        //turn off looping for manual switching between multiple bgm
+        music.tracks[music.trackCount].looping = false;
+        SetMusicVolume(music.tracks[music.trackCount], volume);
+        music.trackCount++;
+    }
+
+    return music;
+}
+
+void playClickSound(UISounds *sounds){
+    PlaySound(sounds->click);
+}
+
+void playCorrectSound(UISounds *sounds){
+    PlaySound(sounds->correct);
+}
+
+void playWrongSound(UISounds *sounds){
+    PlaySound(sounds->wrong);
+}
+
+void startBackgroundMusic(BackgroundMusic *music){
+    if(music->trackCount == 0){
+        return;
+    }
+    PlayMusicStream(music->tracks[music->currentTrack]);
+}
+
+void updateBackgroundMusic(BackgroundMusic *music){
+    if(music->trackCount == 0){
+        return;
+    }
+
+    Music *current = &music->tracks[music->currentTrack];
+    UpdateMusicStream(*current);
+
+    // IsMusicStreamPlaying returns false once the non-looping track finishes
+    if(!IsMusicStreamPlaying(*current)){
+        StopMusicStream(*current);   // ensure state is clean
+        music->currentTrack = (music->currentTrack + 1) % music->trackCount;
+        PlayMusicStream(music->tracks[music->currentTrack]);
+    }
+}
+
+void unloadUISounds(UISounds *sounds){
+    UnloadSound(sounds->click);
+    UnloadSound(sounds->correct);
+    UnloadSound(sounds->wrong);
+}
+
+void unloadBackgroundMusic(BackgroundMusic *music){
+    for(int i=0; i<music->trackCount; i++){
+        UnloadMusicStream(music->tracks[i]);
+    }
+}

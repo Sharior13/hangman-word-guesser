@@ -21,6 +21,13 @@ int main(){
 	InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Hangman Word Guesser");
 	SetTargetFPS(60);
 
+	//audio setup
+	InitAudioDevice();
+	UISounds uiSounds = loadUISounds();
+	//edit to take volume from file if it exists
+	BackgroundMusic bgMusic = loadBackgroundMusic("assets/background-music-1.ogg", "assets/background-music-2.ogg", NULL, 0.3f);
+	startBackgroundMusic(&bgMusic);
+
 	//dont close program on pressing escape button
 	SetExitKey(KEY_NULL);
 
@@ -42,7 +49,7 @@ int main(){
 	//initialize text inputs
 	TextInput guessInput = createTextInput();
 
-	//load heart icon texture (must happen after InitWindow)
+	//load heart icon texture
 	Texture2D heartTexture = LoadTexture("assets/heart.png");
 
 	//prepare first round
@@ -53,6 +60,10 @@ int main(){
 
 	//loop until user closes the window
 	while(!WindowShouldClose()){
+
+		//keep the background music stream buffered
+		updateBackgroundMusic(&bgMusic);
+
 		//check mouse position and clicks
 		Vector2 mousePos = GetMousePosition();
         int mouseClicked = IsMouseButtonPressed(MOUSE_BUTTON_LEFT);
@@ -60,6 +71,7 @@ int main(){
 		if(currentScreen == SCREEN_START){
 			//user clicks play button
 			if(isButtonClicked(&startButtons.play, mousePos, mouseClicked)){
+				playClickSound(&uiSounds);
 				currentScreen = SCREEN_PLAYING;
 				clearInput(&guessInput);
 				state.message[0] = '\0';
@@ -67,6 +79,7 @@ int main(){
 			}
 			//user clicks settings button
 			if(isButtonClicked(&startButtons.settings, mousePos, mouseClicked)){
+				playClickSound(&uiSounds);
 				previousScreen = SCREEN_START;
 				currentScreen = SCREEN_SETTINGS;
 			}
@@ -80,12 +93,14 @@ int main(){
 
 			//exiting settings menu logic — return to wherever Settings was opened from
 			if(isButtonClicked(&backBtn, mousePos, mouseClicked) || IsKeyPressed(KEY_ESCAPE)){
+				playClickSound(&uiSounds);
 				currentScreen = previousScreen;
 			}
 		}
 		else if(currentScreen == SCREEN_PLAYING){
 			//pause the game
 			if(gameOverRevealTimer <= 0.0f && IsKeyPressed(KEY_ESCAPE)){
+				playClickSound(&uiSounds);
 				currentScreen = SCREEN_PAUSED;
 			}
 
@@ -105,6 +120,17 @@ int main(){
 					if(strlen(state.letter) > 0){
 						checkWord();
 						state.tryCount++;
+
+						//feedback sound based on guess result
+						if(state.correctFlag == 1){
+							playCorrectSound(&uiSounds);
+						}
+						else if(state.correctFlag == 2){
+							playWrongSound(&uiSounds);
+						}
+						else if(state.correctFlag == 0){
+							playWrongSound(&uiSounds);
+						}
 					}
 					clearInput(&guessInput);
 
@@ -116,9 +142,8 @@ int main(){
 							state.highScore = state.score;
 						}
 						state.gameWon = (state.correctCount == state.secretWordSize);
-						//don't switch screens yet — let the player see the final
-						//hangman pose (including the X eyes on a loss) for a beat
-						//before the game-over panel covers it
+
+						//delay showing game over screen to show game state to user
 						gameOverRevealTimer = GAMEOVER_REVEAL_DELAY;
 					}
 				}
@@ -135,15 +160,18 @@ int main(){
 		else if(currentScreen == SCREEN_PAUSED){
 			//go back to the game or via escape as shortcut
 			if(isButtonClicked(&pauseButtons.resume, mousePos, mouseClicked) || IsKeyPressed(KEY_ESCAPE)){
+				playClickSound(&uiSounds);
 				currentScreen = SCREEN_PLAYING;
 			}
 			//open settings remembering to return to the pause menu afterward
 			else if(isButtonClicked(&pauseButtons.settings, mousePos, mouseClicked)){
+				playClickSound(&uiSounds);
 				previousScreen = SCREEN_PAUSED;
 				currentScreen = SCREEN_SETTINGS;
 			}
 			//quit to main menu
 			else if(isButtonClicked(&pauseButtons.mainMenu, mousePos, mouseClicked)){
+				playClickSound(&uiSounds);
 				initGame();
 				clearInput(&guessInput);
 				state.round = 1;
@@ -160,7 +188,8 @@ int main(){
  
 			//check is user clicked try again
             if(retryTriggered){
-                if (state.gameWon){
+				playClickSound(&uiSounds);
+                if(state.gameWon){
                     state.round++;
                 }
 				else{
@@ -174,6 +203,7 @@ int main(){
             }
 			//check is user clicked main menu
             else if(mainMenuTriggered){
+				playClickSound(&uiSounds);
 				initGame();
                 clearInput(&guessInput);
 				state.round = 1;
@@ -218,6 +248,11 @@ int main(){
 
 	//free GPU resources before closing
 	UnloadTexture(heartTexture);
+	//free audio resources and close the audio device
+	unloadBackgroundMusic(&bgMusic);
+	unloadUISounds(&uiSounds);
+	CloseAudioDevice();
+
 	CloseWindow();
 	return 0;
 }

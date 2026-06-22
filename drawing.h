@@ -41,6 +41,9 @@
 #define PAUSE_PANEL_HEIGHT 560
 #define PAUSE_TITLE_SIZE 70
 
+//maximum number of bgm that can be loaded 
+#define MAX_MUSIC_TRACKS 3
+
 //button blueprint
 typedef struct{
     Rectangle bounds;
@@ -72,6 +75,21 @@ typedef struct{
     Button mainMenu;
 } PauseButtons;
 
+//ui sound effects
+typedef struct{
+    Sound click;
+    Sound correct;
+    Sound wrong;
+} UISounds;
+
+//background music
+typedef struct{
+    Music tracks[MAX_MUSIC_TRACKS];
+    int trackCount;
+    int currentTrack;
+    float volume;
+} BackgroundMusic;
+
 //factory function for making start screen buttons
 StartScreenButtons createStartScreenButtons();
 //factory function for back button
@@ -80,6 +98,27 @@ Button createBackButton();
 GameOverButtons createGameOverButtons();
 //factory function for making pause menu buttons
 PauseButtons createPauseButtons();
+//factory function for loading all ui sound effects
+UISounds loadUISounds();
+//factory function for loading background music tracks
+BackgroundMusic loadBackgroundMusic(const char *fileName1, const char *fileName2, const char *fileName3, float volume);
+
+//play a ui click sound effect
+void playClickSound(UISounds *sounds);
+//play the correct guess sound effect
+void playCorrectSound(UISounds *sounds);
+//play the wrong guess sound effect
+void playWrongSound(UISounds *sounds);
+
+//start background music playing the first loaded track
+void startBackgroundMusic(BackgroundMusic *music);
+//keep the current track buffered
+void updateBackgroundMusic(BackgroundMusic *music);
+
+//unload all ui sound effects
+void unloadUISounds(UISounds *sounds);
+//unload all bgm
+void unloadBackgroundMusic(BackgroundMusic *music);
 
 //drawing functions
 void drawHeart(Texture2D heartTexture, int x, int y, int size, Color tint);

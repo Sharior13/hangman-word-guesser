@@ -40,6 +40,7 @@ int main(){
 
 	//initialize buttons in start scren
 	StartScreenButtons startButtons = createStartScreenButtons();
+	//initialize back button in settings screen
 	Button backBtn = createBackButton();
 
 	//initialize buttons in gameover screen
@@ -94,7 +95,7 @@ int main(){
 		else if(currentScreen == SCREEN_SETTINGS){
 			applyAudioSettings(&audioSettings, &uiSounds, &bgMusic);
 
-			//exiting settings menu logic — return to wherever Settings was opened from
+			//exit settings menu logic returning to wherever settings was opened from
 			if(isButtonClicked(&backBtn, mousePos, mouseClicked) || IsKeyPressed(KEY_ESCAPE)){
 				playClickSound(&uiSounds);
 				currentScreen = previousScreen;
@@ -233,8 +234,15 @@ int main(){
 			drawStartScreen(state.highScore, state.round, &startButtons);
 		}
 		else if(currentScreen == SCREEN_SETTINGS){
+			//draw previous screen as backdrop
+			if(previousScreen == SCREEN_START){
+				drawStartScreen(state.highScore, state.round, &startButtons);
+			}
+			else if(previousScreen == SCREEN_PAUSED){
+				drawPlayingScreen(heartTexture, &state, guessInput.buffer);
+			}
 			//draw settings screen
-			drawSettingsScreen(&backBtn, &audioSettings, mousePos, mouseDown);
+			drawSettingsScreen(&backBtn, &audioSettings, mousePos, sliderMouseDown);
 		}
 		else if(currentScreen == SCREEN_PLAYING){
 			//draw main game (hangman, guesses, lives etc)

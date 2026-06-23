@@ -312,15 +312,32 @@ float drawSlider(const char *label, float value, int sliderX, int sliderY, Vecto
 }
 
 void drawSettingsScreen(Button *backBtn, AudioSettings *settings, Vector2 mousePos, int mouseDown){
+    //dim overlay
+    DrawRectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, Fade(BLACK, 0.6f));
+    
+    int panelW = SETTINGS_PANEL_WIDTH;
+    int panelH = SETTINGS_PANEL_HEIGHT;
+    int panelX = (SCREEN_WIDTH  - panelW) / 2;
+    int panelY = (SCREEN_HEIGHT - panelH) / 2;
+
+    //panel background and border
+    DrawRectangleRounded((Rectangle){panelX, panelY, panelW, panelH}, 0.08f, 12, COLOR_PANEL);
+    DrawRectangleRoundedLines((Rectangle){panelX, panelY, panelW, panelH}, 0.08f, 12, 2.0f, COLOR_BORDER);
+
+    //title
     const char *title = "SETTINGS";
-    int textSize = 90;
-    int textWidth = MeasureText(title, textSize);
-    DrawText(title, (SCREEN_WIDTH - textWidth) / 2, 200, textSize, COLOR_HIGHLIGHT);
+    int titleSize = 70;
+    int titleW = MeasureText(title, titleSize);
+    DrawText(title, panelX + (panelW - titleW) / 2, panelY + 50, titleSize, COLOR_HIGHLIGHT);
 
-    int sliderX = SETTINGS_SLIDER_LEFT_X;
+    //divider under title
+    DrawRectangle(panelX + 40, panelY + 140, panelW - 80, 2, COLOR_BORDER);
 
-    settings->mainVolume  = drawSlider("Main Volume",  settings->mainVolume, sliderX, SETTINGS_SLIDER_1_Y, mousePos, mouseDown);
-    settings->musicVolume = drawSlider("Music Volume", settings->musicVolume, sliderX, SETTINGS_SLIDER_2_Y, mousePos, mouseDown);
+    //sliders centered inside the panel
+    int sliderX = panelX + (panelW - SETTINGS_SLIDER_WIDTH) / 2;
+
+    settings->mainVolume  = drawSlider("Main Volume",  settings->mainVolume,  sliderX, panelY + 200, mousePos, mouseDown);
+    settings->musicVolume = drawSlider("Music Volume", settings->musicVolume, sliderX, panelY + 340, mousePos, mouseDown);
 
     drawButton(backBtn);
 }
@@ -427,9 +444,12 @@ StartScreenButtons createStartScreenButtons(){
 
 //factory function for creating back button
 Button createBackButton(){
-    int x = (SCREEN_WIDTH - START_BTN_WIDTH) / 2;
+    int panelX = (SCREEN_WIDTH  - SETTINGS_PANEL_WIDTH)  / 2;
+    int panelY = (SCREEN_HEIGHT - SETTINGS_PANEL_HEIGHT) / 2;
+    int btnX = panelX + (SETTINGS_PANEL_WIDTH - START_BTN_WIDTH) / 2;
+    int btnY = panelY + SETTINGS_PANEL_HEIGHT - START_BTN_HEIGHT - 40;
     //initialize struct literals with values and return
-    return createButton(x, 900, START_BTN_WIDTH, START_BTN_HEIGHT, "Back");
+    return createButton(btnX, btnY, START_BTN_WIDTH, START_BTN_HEIGHT, "Back");
 }
 
 //factory function for creating game over screen buttons

@@ -21,11 +21,13 @@ int main(){
 	InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Hangman Word Guesser");
 	SetTargetFPS(60);
 
-	//audio setup
+	//audio setup and initialization
 	InitAudioDevice();
 	UISounds uiSounds = loadUISounds();
 	//edit to take volume from file if it exists
 	BackgroundMusic bgMusic = loadBackgroundMusic("assets/audio/background-music-1.ogg", "assets/audio/background-music-2.ogg", "assets/audio/background-music-3.ogg", 0.3f);
+	AudioSettings audioSettings = defaultAudioSettings();
+	applyAudioSettings(&audioSettings, &uiSounds, &bgMusic);
 	startBackgroundMusic(&bgMusic);
 
 	//dont close program on pressing escape button
@@ -67,6 +69,7 @@ int main(){
 		//check mouse position and clicks
 		Vector2 mousePos = GetMousePosition();
         int mouseClicked = IsMouseButtonPressed(MOUSE_BUTTON_LEFT);
+		int mouseDown = IsMouseButtonDown(MOUSE_BUTTON_LEFT);
 
 		if(currentScreen == SCREEN_START){
 			//user clicks play button
@@ -89,7 +92,7 @@ int main(){
 			}
 		}
 		else if(currentScreen == SCREEN_SETTINGS){
-			//write settings logic
+			applyAudioSettings(&audioSettings, &uiSounds, &bgMusic);
 
 			//exiting settings menu logic — return to wherever Settings was opened from
 			if(isButtonClicked(&backBtn, mousePos, mouseClicked) || IsKeyPressed(KEY_ESCAPE)){
@@ -231,7 +234,7 @@ int main(){
 		}
 		else if(currentScreen == SCREEN_SETTINGS){
 			//draw settings screen
-			drawSettingsScreen(&backBtn);
+			drawSettingsScreen(&backBtn, &audioSettings, mousePos, mouseDown);
 		}
 		else if(currentScreen == SCREEN_PLAYING){
 			//draw main game (hangman, guesses, lives etc)

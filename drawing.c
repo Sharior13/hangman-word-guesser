@@ -265,15 +265,62 @@ void drawStartScreen(int highScore, int round, StartScreenButtons *buttons){
     drawButton(&buttons->quit);
 }
 
-void drawSettingsScreen(Button *backBtn){
+//helper function to draw volume slider in settings
+float drawSlider(const char *label, float value, int sliderX, int sliderY, Vector2 mousePos, int mouseDown){
+
+    int labelSize = 34;
+    DrawText(label, sliderX, sliderY - 50, labelSize, COLOR_TEXT);
+
+    //track
+    DrawRectangleRounded((Rectangle){ sliderX, sliderY, SETTINGS_SLIDER_WIDTH, SETTINGS_SLIDER_HEIGHT }, 0.5f, 6, COLOR_BORDER);
+
+    //filled portion
+    int fillW = (int)(value * SETTINGS_SLIDER_WIDTH);
+    if(fillW > 0){
+        DrawRectangleRounded((Rectangle){ sliderX, sliderY, fillW, SETTINGS_SLIDER_HEIGHT }, 0.5f, 6, COLOR_HIGHLIGHT);
+    }
+
+    //knob
+    int knobX = sliderX + fillW - SETTINGS_SLIDER_KNOB / 2;
+    int knobY = sliderY + SETTINGS_SLIDER_HEIGHT / 2 - SETTINGS_SLIDER_KNOB / 2;
+    DrawCircle(knobX + SETTINGS_SLIDER_KNOB / 2, knobY + SETTINGS_SLIDER_KNOB / 2, SETTINGS_SLIDER_KNOB / 2, COLOR_HIGHLIGHT);
+
+    //percentage label to the right
+    char pctBuf[8];
+    snprintf(pctBuf, sizeof(pctBuf), "%d%%", (int)(value * 100));
+    DrawText(pctBuf, sliderX + SETTINGS_SLIDER_WIDTH + 20, sliderY - 6, labelSize, COLOR_DIM);
+
+    //drag interaction
+    Rectangle hitZone = {
+        sliderX - 10,
+        sliderY - SETTINGS_SLIDER_KNOB,
+        SETTINGS_SLIDER_WIDTH + 20,
+        SETTINGS_SLIDER_HEIGHT + SETTINGS_SLIDER_KNOB * 2
+    };
+    if(mouseDown && CheckCollisionPointRec(mousePos, hitZone)){
+        float newVal = (mousePos.x - sliderX) / (float)SETTINGS_SLIDER_WIDTH;
+        if(newVal < 0.0f){
+            newVal = 0.0f;
+        }
+        if(newVal > 1.0f){
+            newVal = 1.0f;
+        }
+        return newVal;
+    }
+
+    return value;
+}
+
+void drawSettingsScreen(Button *backBtn, AudioSettings *settings, Vector2 mousePos, int mouseDown){
     const char *title = "SETTINGS";
     int textSize = 90;
     int textWidth = MeasureText(title, textSize);
-    DrawText(title, (SCREEN_WIDTH - textWidth) / 2, 260, textSize, COLOR_HIGHLIGHT);
+    DrawText(title, (SCREEN_WIDTH - textWidth) / 2, 200, textSize, COLOR_HIGHLIGHT);
 
-    const char *note = "Settings options coming soon.";
-    int noteWidth = MeasureText(note, 32);
-    DrawText(note, (SCREEN_WIDTH - noteWidth) / 2, 420, 32, COLOR_DIM);
+    int sliderX = SETTINGS_SLIDER_LEFT_X;
+
+    settings->mainVolume  = drawSlider("Main Volume",  settings->mainVolume, sliderX, SETTINGS_SLIDER_1_Y, mousePos, mouseDown);
+    settings->musicVolume = drawSlider("Music Volume", settings->musicVolume, sliderX, SETTINGS_SLIDER_2_Y, mousePos, mouseDown);
 
     drawButton(backBtn);
 }
@@ -420,6 +467,12 @@ PauseButtons createPauseButtons(){
     return buttons;
 }
 
+//factory function for default audio values
+AudioSettings defaultAudioSettings(){
+    AudioSettings s = { .mainVolume = 1.0f, .musicVolume = 0.8f };
+    return s;
+}
+
 //factory function for loading all ui sound effects
 UISounds loadUISounds(){
     UISounds sounds = {
@@ -450,6 +503,24 @@ BackgroundMusic loadBackgroundMusic(const char *fileName1, const char *fileName2
     }
 
     return music;
+}
+
+//apply current volume to all audio
+void applyAudioSettings(AudioSettings *settings, UISounds *sounds, BackgroundMusic *music){
+    float sfxVol  = settings->mainVolume;
+    float musicVol = settings->mainVolume * settings->musicVolume;
+
+    //apply to every sfx slot
+    SetSoundVolume(sounds->click, sfxVol);
+    SetSoundVolume(sounds->correct, sfxVol);
+    SetSoundVolume(sounds->wrong, sfxVol);
+    SetSoundVolume(sounds->roundWin, sfxVol);
+    SetSoundVolume(sounds->roundLoss, sfxVol);
+
+    //apply to every bgm track
+    for(int i=0; i<music->trackCount; i++){
+        SetMusicVolume(music->tracks[i], musicVol);
+    }
 }
 
 void playClickSound(UISounds *sounds){
@@ -487,9 +558,9 @@ void updateBackgroundMusic(BackgroundMusic *music){
     Music *current = &music->tracks[music->currentTrack];
     UpdateMusicStream(*current);
 
-    // IsMusicStreamPlaying returns false once the non-looping track finishes
     if(!IsMusicStreamPlaying(*current)){
-        StopMusicStream(*current);   // ensure state is clean
+        // ensure state is clean
+        StopMusicStream(*current);
         music->currentTrack = (music->currentTrack + 1) % music->trackCount;
         PlayMusicStream(music->tracks[music->currentTrack]);
     }
@@ -499,6 +570,8 @@ void unloadUISounds(UISounds *sounds){
     UnloadSound(sounds->click);
     UnloadSound(sounds->correct);
     UnloadSound(sounds->wrong);
+    UnloadSound(sounds->roundWin);
+    UnloadSound(sounds->roundLoss);
 }
 
 void unloadBackgroundMusic(BackgroundMusic *music){

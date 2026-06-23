@@ -41,6 +41,14 @@
 #define PAUSE_PANEL_HEIGHT 560
 #define PAUSE_TITLE_SIZE 70
 
+//settings slider layout
+#define SETTINGS_SLIDER_WIDTH 700
+#define SETTINGS_SLIDER_HEIGHT 18
+#define SETTINGS_SLIDER_KNOB 26
+#define SETTINGS_SLIDER_LEFT_X ((SCREEN_WIDTH - SETTINGS_SLIDER_WIDTH) / 2)
+#define SETTINGS_SLIDER_1_Y 480
+#define SETTINGS_SLIDER_2_Y 640
+
 //maximum number of bgm that can be loaded 
 #define MAX_MUSIC_TRACKS 3
 
@@ -75,6 +83,12 @@ typedef struct{
     Button mainMenu;
 } PauseButtons;
 
+//audio volume settings
+typedef struct{
+    float mainVolume;
+    float musicVolume;
+} AudioSettings;
+
 //ui sound effects
 typedef struct{
     Sound click;
@@ -100,6 +114,8 @@ Button createBackButton();
 GameOverButtons createGameOverButtons();
 //factory function for making pause menu buttons
 PauseButtons createPauseButtons();
+//factory function for creating audio settings with default values
+AudioSettings defaultAudioSettings();
 //factory function for loading all ui sound effects
 UISounds loadUISounds();
 //factory function for loading background music tracks
@@ -116,6 +132,8 @@ void playRoundWinSound(UISounds *sounds);
 //play the round loss sound effect
 void playRoundLossSound(UISounds *sounds);
 
+//apply current volume to all audio
+void applyAudioSettings(AudioSettings *settings, UISounds *sounds, BackgroundMusic *music);
 //start background music playing the first loaded track
 void startBackgroundMusic(BackgroundMusic *music);
 //keep the current track buffered
@@ -129,7 +147,7 @@ void unloadBackgroundMusic(BackgroundMusic *music);
 //drawing functions
 void drawHeart(Texture2D heartTexture, int x, int y, int size, Color tint);
 void drawStartScreen(int highScore, int round, StartScreenButtons *buttons);
-void drawSettingsScreen(Button *backBtn);
+void drawSettingsScreen(Button *backBtn, AudioSettings *settings, Vector2 mousePos, int mouseDown);
 void drawPlayingScreen(Texture2D heartTexture, GameState *state, char *currentInput);
 void drawGameOver(int won, const char *secretWord, int score, GameOverButtons *buttons);
 void drawPauseMenu(PauseButtons *buttons);

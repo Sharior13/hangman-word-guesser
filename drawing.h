@@ -80,6 +80,8 @@ typedef struct{
     Sound click;
     Sound correct;
     Sound wrong;
+    Sound roundWin;
+    Sound roundLoss;
 } UISounds;
 
 //background music
@@ -109,6 +111,10 @@ void playClickSound(UISounds *sounds);
 void playCorrectSound(UISounds *sounds);
 //play the wrong guess sound effect
 void playWrongSound(UISounds *sounds);
+//play the round win sound effect
+void playRoundWinSound(UISounds *sounds);
+//play the round loss sound effect
+void playRoundLossSound(UISounds *sounds);
 
 //start background music playing the first loaded track
 void startBackgroundMusic(BackgroundMusic *music);

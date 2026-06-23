@@ -25,7 +25,7 @@ int main(){
 	InitAudioDevice();
 	UISounds uiSounds = loadUISounds();
 	//edit to take volume from file if it exists
-	BackgroundMusic bgMusic = loadBackgroundMusic("assets/background-music-1.ogg", "assets/background-music-2.ogg", NULL, 0.3f);
+	BackgroundMusic bgMusic = loadBackgroundMusic("assets/audio/background-music-1.ogg", "assets/audio/background-music-2.ogg", "assets/audio/background-music-3.ogg", 0.3f);
 	startBackgroundMusic(&bgMusic);
 
 	//dont close program on pressing escape button
@@ -50,7 +50,7 @@ int main(){
 	TextInput guessInput = createTextInput();
 
 	//load heart icon texture
-	Texture2D heartTexture = LoadTexture("assets/heart.png");
+	Texture2D heartTexture = LoadTexture("assets/sprite/heart.png");
 
 	//prepare first round
 	initGame();
@@ -142,6 +142,14 @@ int main(){
 							state.highScore = state.score;
 						}
 						state.gameWon = (state.correctCount == state.secretWordSize);
+
+						//play sound on win/loss
+						if(state.gameWon){
+							playRoundWinSound(&uiSounds);
+						}
+						else{
+							playRoundLossSound(&uiSounds);
+						}
 
 						//delay showing game over screen to show game state to user
 						gameOverRevealTimer = GAMEOVER_REVEAL_DELAY;

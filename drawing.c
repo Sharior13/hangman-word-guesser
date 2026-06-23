@@ -423,9 +423,11 @@ PauseButtons createPauseButtons(){
 //factory function for loading all ui sound effects
 UISounds loadUISounds(){
     UISounds sounds = {
-        .click = LoadSound("assets/click.wav"),
-        .correct = LoadSound("assets/correct.wav"),
-        .wrong = LoadSound("assets/wrong.wav"),
+        .click = LoadSound("assets/audio/click.wav"),
+        .correct = LoadSound("assets/audio/correct.wav"),
+        .wrong = LoadSound("assets/audio/wrong.wav"),
+        .roundWin = LoadSound("assets/audio/round-win.wav"),
+        .roundLoss = LoadSound("assets/audio/round-loss.wav"),
     };
     return sounds;
 }
@@ -460,6 +462,14 @@ void playCorrectSound(UISounds *sounds){
 
 void playWrongSound(UISounds *sounds){
     PlaySound(sounds->wrong);
+}
+
+void playRoundWinSound(UISounds *sounds){
+    PlaySound(sounds->roundWin);
+}
+
+void playRoundLossSound(UISounds *sounds){
+    PlaySound(sounds->roundLoss);
 }
 
 void startBackgroundMusic(BackgroundMusic *music){

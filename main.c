@@ -25,7 +25,7 @@ int main(){
 	InitAudioDevice();
 	UISounds uiSounds = loadUISounds();
 	//edit to take volume from file if it exists
-	BackgroundMusic bgMusic = loadBackgroundMusic("assets/audio/background-music-1.ogg", "assets/audio/background-music-2.ogg", "assets/audio/background-music-3.ogg", 0.3f);
+	BackgroundMusic bgMusic = loadBackgroundMusic("assets/audio/background-music-1.ogg", "assets/audio/background-music-2.ogg", "assets/audio/background-music-3.ogg");
 	AudioSettings audioSettings = defaultAudioSettings();
 	applyAudioSettings(&audioSettings, &uiSounds, &bgMusic);
 	startBackgroundMusic(&bgMusic);
@@ -54,6 +54,8 @@ int main(){
 
 	//load heart icon texture
 	Texture2D heartTexture = LoadTexture("assets/sprite/heart.png");
+	//load logo texture for main menu
+	Texture2D logoTexture = LoadTexture("assets/sprite/logo.png");
 
 	//prepare first round
 	initGame();
@@ -231,18 +233,18 @@ int main(){
 
 		if(currentScreen == SCREEN_START){
 			//draw start screen
-			drawStartScreen(state.highScore, state.round, &startButtons);
+			drawStartScreen(logoTexture, state.highScore, state.round, &startButtons);
 		}
 		else if(currentScreen == SCREEN_SETTINGS){
 			//draw previous screen as backdrop
 			if(previousScreen == SCREEN_START){
-				drawStartScreen(state.highScore, state.round, &startButtons);
+				drawStartScreen(logoTexture, state.highScore, state.round, &startButtons);
 			}
 			else if(previousScreen == SCREEN_PAUSED){
 				drawPlayingScreen(heartTexture, &state, guessInput.buffer);
 			}
 			//draw settings screen
-			drawSettingsScreen(&backBtn, &audioSettings, mousePos, sliderMouseDown);
+			drawSettingsScreen(&backBtn, &audioSettings, mousePos, mouseDown);
 		}
 		else if(currentScreen == SCREEN_PLAYING){
 			//draw main game (hangman, guesses, lives etc)
@@ -267,6 +269,7 @@ int main(){
 
 	//free GPU resources before closing
 	UnloadTexture(heartTexture);
+	UnloadTexture(logoTexture);
 	//free audio resources and close the audio device
 	unloadBackgroundMusic(&bgMusic);
 	unloadUISounds(&uiSounds);

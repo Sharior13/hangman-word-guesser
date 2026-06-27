@@ -238,19 +238,15 @@ void drawButton(Button *btn){
     DrawText(btn->label, textX, textY, fontSize, text);
 }
  
-void drawStartScreen(int highScore, int round, StartScreenButtons *buttons){
-    //title
-    const char *title = "HANGMAN";
-    int textSize = 140;
-    int textWidth = MeasureText(title, textSize);
-    DrawText(title, (SCREEN_WIDTH - textWidth) / 2, 220, textSize, COLOR_HIGHLIGHT);
- 
-    const char *sub = "Word Guesser";
-    int subWidth = MeasureText(sub, 50);
-    DrawText(sub, (SCREEN_WIDTH - subWidth) / 2, 380, 50, COLOR_DIM);
- 
-    //divider
-    DrawRectangle(SCREEN_WIDTH / 2 - 230, 460, 460, 3, COLOR_BORDER);
+void drawStartScreen(Texture2D logoTexture, int highScore, int round, StartScreenButtons *buttons){
+    //logo
+    int logoH = 400;
+    int logoW = (int)((float)logoTexture.width / logoTexture.height * logoH);
+    int logoX = (SCREEN_WIDTH - logoW) / 2;
+    int logoY = 60;
+    Rectangle logoSrc  = { 0, 0, (float)logoTexture.width, (float)logoTexture.height };
+    Rectangle logoDest = { logoX, logoY, logoW, logoH };
+    DrawTexturePro(logoTexture, logoSrc, logoDest, (Vector2){ 0, 0 }, 0.0f, WHITE);
  
     char roundBuf[32], highScoreBuf[32];
     snprintf(roundBuf, sizeof(roundBuf), "Round: %d", round);
@@ -506,8 +502,8 @@ UISounds loadUISounds(){
 }
 
 //factory function for loading bgm
-BackgroundMusic loadBackgroundMusic(const char *fileName1, const char *fileName2, const char *fileName3, float volume){
-    BackgroundMusic music = { .trackCount = 0, .currentTrack = 0, .volume = volume };
+BackgroundMusic loadBackgroundMusic(const char *fileName1, const char *fileName2, const char *fileName3){
+    BackgroundMusic music = { .trackCount = 0, .currentTrack = 0 };
 
     const char *fileNames[MAX_MUSIC_TRACKS] = { fileName1, fileName2, fileName3 };
 
@@ -518,7 +514,6 @@ BackgroundMusic loadBackgroundMusic(const char *fileName1, const char *fileName2
         music.tracks[music.trackCount] = LoadMusicStream(fileNames[i]);
         //turn off looping for manual switching between multiple bgm
         music.tracks[music.trackCount].looping = false;
-        SetMusicVolume(music.tracks[music.trackCount], volume);
         music.trackCount++;
     }
 

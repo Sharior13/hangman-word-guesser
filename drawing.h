@@ -118,7 +118,7 @@ AudioSettings defaultAudioSettings();
 //factory function for loading all ui sound effects
 UISounds loadUISounds();
 //factory function for loading background music tracks
-BackgroundMusic loadBackgroundMusic(const char *fileName1, const char *fileName2, const char *fileName3, float volume);
+BackgroundMusic loadBackgroundMusic(const char *fileName1, const char *fileName2, const char *fileName3);
 
 //play a ui click sound effect
 void playClickSound(UISounds *sounds);
@@ -145,7 +145,7 @@ void unloadBackgroundMusic(BackgroundMusic *music);
 
 //drawing functions
 void drawHeart(Texture2D heartTexture, int x, int y, int size, Color tint);
-void drawStartScreen(int highScore, int round, StartScreenButtons *buttons);
+void drawStartScreen(Texture2D logoTexture, int highScore, int round, StartScreenButtons *buttons);
 void drawSettingsScreen(Button *backBtn, AudioSettings *settings, Vector2 mousePos, int mouseDown);
 void drawPlayingScreen(Texture2D heartTexture, GameState *state, char *currentInput);
 void drawGameOver(int won, const char *secretWord, int score, GameOverButtons *buttons);

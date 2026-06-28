@@ -13,6 +13,9 @@
 //how long to show the final hangman pose before the game over panel appears
 #define GAMEOVER_REVEAL_DELAY 1.0f
 
+//path to game save file
+#define GAMEE_FILE_PATH "data/game-file.bin"
+
 //game variables blueprint
 typedef struct{
 	char secretWord[MAX_WORD_LENGTH];
@@ -23,16 +26,32 @@ typedef struct{
 
 extern GameState state;
 
+//persistent save data written to file
+typedef struct{
+    int highScore;
+    int round;
+    int score;
+    int correctCount;
+    int wrongCount;
+    char secretWord[MAX_WORD_LENGTH];
+    char correctLetters[MAX_WORD_LENGTH];
+    char wrongLetters[MAX_WRONG_LENGTH];
+    float mainVolume;
+    float musicVolume;
+} SaveData;
+
 void initGame();
 void checkWord();
 void loadSecretWord(char *word, int *wordSize);
 void giveHint(char *word, char *displayedLetters);
 int calculateScore();
-int getHighScore();  
-void setHighScore(int currentScore);  
+SaveData loadSaveData();
+void writeSaveData(SaveData *data);
 int gameShouldEnd();
 void sanitizeInput(char *letters);
 void resetVariables();
 int getRandomNumber(int MIN, int MAX);
+void restoreGameState(SaveData *saveData);
+void persistGameState(SaveData *saveData);
 
 #endif

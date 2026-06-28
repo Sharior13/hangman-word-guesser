@@ -16,3 +16,4 @@ bin/
 
 # Data files
 *.bin
+*.dat

@@ -407,6 +407,7 @@ void drawPauseMenu(PauseButtons *buttons){
     DrawText(title, (SCREEN_WIDTH - titleW) / 2, panelY + 80, PAUSE_TITLE_SIZE, COLOR_HIGHLIGHT);
 
     drawButton(&buttons->resume);
+    drawButton(&buttons->restart);
     drawButton(&buttons->settings);
     drawButton(&buttons->mainMenu);
 }
@@ -476,9 +477,10 @@ PauseButtons createPauseButtons(){
     int firstBtnY = panelY + 220;
 
     PauseButtons buttons = {
-        .resume = createButton(x, firstBtnY + rowHeight * 0, PAUSE_BTN_WIDTH, PAUSE_BTN_HEIGHT, "Resume"),
-        .settings = createButton(x, firstBtnY + rowHeight * 1, PAUSE_BTN_WIDTH, PAUSE_BTN_HEIGHT, "Settings"),
-        .mainMenu = createButton(x, firstBtnY + rowHeight * 2, PAUSE_BTN_WIDTH, PAUSE_BTN_HEIGHT, "Main Menu"),
+        .resume   = createButton(x, firstBtnY + rowHeight * 0, PAUSE_BTN_WIDTH, PAUSE_BTN_HEIGHT, "Resume"),
+        .restart  = createButton(x, firstBtnY + rowHeight * 1, PAUSE_BTN_WIDTH, PAUSE_BTN_HEIGHT, "Restart"),
+        .settings = createButton(x, firstBtnY + rowHeight * 2, PAUSE_BTN_WIDTH, PAUSE_BTN_HEIGHT, "Settings"),
+        .mainMenu = createButton(x, firstBtnY + rowHeight * 3, PAUSE_BTN_WIDTH, PAUSE_BTN_HEIGHT, "Main Menu"),
     };
     return buttons;
 }

@@ -38,7 +38,7 @@
 #define PAUSE_BTN_HEIGHT 80
 #define PAUSE_BTN_GAP 30
 #define PAUSE_PANEL_WIDTH 600
-#define PAUSE_PANEL_HEIGHT 560
+#define PAUSE_PANEL_HEIGHT 680
 #define PAUSE_TITLE_SIZE 70
 
 //settings slider layout
@@ -78,6 +78,7 @@ typedef struct{
 //pause menu buttons
 typedef struct{
     Button resume;
+    Button restart;
     Button settings;
     Button mainMenu;
 } PauseButtons;

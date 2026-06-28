@@ -24,9 +24,13 @@ int main(){
 	//audio setup and initialization
 	InitAudioDevice();
 	UISounds uiSounds = loadUISounds();
-	//edit to take volume from file if it exists
 	BackgroundMusic bgMusic = loadBackgroundMusic("assets/audio/background-music-1.ogg", "assets/audio/background-music-2.ogg", "assets/audio/background-music-3.ogg");
-	AudioSettings audioSettings = defaultAudioSettings();
+
+	//load persistent save data and restore audio settings and game state from it
+	SaveData saveData = loadSaveData();
+	AudioSettings audioSettings = { .mainVolume = saveData.mainVolume, .musicVolume = saveData.musicVolume };
+	restoreGameState(&saveData);
+
 	applyAudioSettings(&audioSettings, &uiSounds, &bgMusic);
 	startBackgroundMusic(&bgMusic);
 
@@ -57,8 +61,19 @@ int main(){
 	//load logo texture for main menu
 	Texture2D logoTexture = LoadTexture("assets/sprite/logo.png");
 
-	//prepare first round
-	initGame();
+	//if any word was saved, restore it and also state, else prepare a fresh one
+	if(saveData.secretWord[0] != '\0'){
+		strncpy(state.secretWord, saveData.secretWord, MAX_WORD_LENGTH);
+		state.secretWordSize = strlen(state.secretWord);
+		strncpy(state.correctLetters, saveData.correctLetters, MAX_WORD_LENGTH);
+		strncpy(state.wrongLetters, saveData.wrongLetters, MAX_WRONG_LENGTH);
+		state.wrongCount = saveData.wrongCount;
+		state.correctCount = saveData.correctCount;
+	}
+	else{
+		initGame();
+		persistGameState(&saveData);
+	}
 
 	//track the pause between the game ending and the game over panel appearing
 	float gameOverRevealTimer = 0.0f;
@@ -78,10 +93,10 @@ int main(){
 			//user clicks play button
 			if(isButtonClicked(&startButtons.play, mousePos, mouseClicked)){
 				playClickSound(&uiSounds);
-				currentScreen = SCREEN_PLAYING;
 				clearInput(&guessInput);
 				state.message[0] = '\0';
 				gameOverRevealTimer = 0.0f;
+				currentScreen = SCREEN_PLAYING;
 			}
 			//user clicks settings button
 			if(isButtonClicked(&startButtons.settings, mousePos, mouseClicked)){
@@ -100,6 +115,10 @@ int main(){
 			//exit settings menu logic returning to wherever settings was opened from
 			if(isButtonClicked(&backBtn, mousePos, mouseClicked) || IsKeyPressed(KEY_ESCAPE)){
 				playClickSound(&uiSounds);
+				//persist audio settings on pressing back or esc
+				saveData.mainVolume = audioSettings.mainVolume;
+				saveData.musicVolume = audioSettings.musicVolume;
+				writeSaveData(&saveData);
 				currentScreen = previousScreen;
 			}
 		}
@@ -144,10 +163,12 @@ int main(){
 					if(gameShouldEnd()){
 						state.score += calculateScore();
 						if(state.score > state.highScore){
-							setHighScore(state.score);
 							state.highScore = state.score;
 						}
 						state.gameWon = (state.correctCount == state.secretWordSize);
+
+						//persist high score, round, and score after each round ends
+						persistGameState(&saveData);
 
 						//play sound on win/loss
 						if(state.gameWon){
@@ -177,21 +198,33 @@ int main(){
 				playClickSound(&uiSounds);
 				currentScreen = SCREEN_PLAYING;
 			}
+			//restart the current run from zero when user presses restart button
+			else if(isButtonClicked(&pauseButtons.restart, mousePos, mouseClicked)){
+				playClickSound(&uiSounds);
+				state.round = 1;
+				state.score = 0;
+				initGame();
+				clearInput(&guessInput);
+				state.message[0] = '\0';
+				gameOverRevealTimer = 0.0f;
+				//save the reset progress
+				persistGameState(&saveData);
+				currentScreen = SCREEN_PLAYING;
+			}
 			//open settings remembering to return to the pause menu afterward
 			else if(isButtonClicked(&pauseButtons.settings, mousePos, mouseClicked)){
 				playClickSound(&uiSounds);
 				previousScreen = SCREEN_PAUSED;
 				currentScreen = SCREEN_SETTINGS;
 			}
-			//quit to main menu
+			//return to main menu and save word to file
 			else if(isButtonClicked(&pauseButtons.mainMenu, mousePos, mouseClicked)){
 				playClickSound(&uiSounds);
-				initGame();
 				clearInput(&guessInput);
-				state.round = 1;
-				state.score = 0;
 				state.message[0] = '\0';
 				gameOverRevealTimer = 0.0f;
+				//save current word and progress so the round resumes on relaunch
+				persistGameState(&saveData);
 				currentScreen = SCREEN_START;
 			}
 		}
@@ -213,16 +246,26 @@ int main(){
                 initGame();
                 clearInput(&guessInput);
                 gameOverRevealTimer = 0.0f;
+				//save updated round, score and the new word
+				persistGameState(&saveData);
                 currentScreen = SCREEN_PLAYING;
             }
 			//check is user clicked main menu
             else if(mainMenuTriggered){
 				playClickSound(&uiSounds);
+				//increment round on win, reset on loss
+				if(state.gameWon){
+					state.round++;
+				}
+				else{
+					state.round = 1;
+					state.score = 0;
+				}
 				initGame();
-                clearInput(&guessInput);
-				state.round = 1;
-                state.score = 0;
+				clearInput(&guessInput);
 				state.message[0] = '\0';
+				//save updated progress before returning to menu
+				persistGameState(&saveData);
                 currentScreen = SCREEN_START;
             }
 		}

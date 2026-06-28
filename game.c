@@ -188,36 +188,42 @@ void checkWord(){
 	}
 }
 
-//get high score from file
-int getHighScore(){
-	FILE *fp = fopen("data/game-file.bin", "rb");
-	if(fp == NULL){
-		//file doesn't exist yet, return 0
-		strcpy(state.message, "Error getting high score.");
-		return 0;
-	}
+//load all persistent data from save file and return defaults if file missing
+SaveData loadSaveData(){
+	//default values
+    SaveData data = {
+        .highScore = 0,
+        .round = 1,
+        .score = 0,
+        .mainVolume = 1.0f,
+        .musicVolume = 0.8f,
+    };
 
-	int savedHighScore = 0;
-	if(fread(&savedHighScore, sizeof(int), 1, fp) != 1){
-		//read failed or file is empty
-		savedHighScore = 0;
-	}
+    FILE *fp = fopen(GAME_FILE_PATH, "rb");
+    if(fp == NULL){
+        return data;
+    }
 
-	fclose(fp);
-	return savedHighScore;
+	//initialize struct literal as 0
+    SaveData saved = {0};
+    int bytesRead = fread(&saved, 1, sizeof(SaveData), fp);
+    if(bytesRead == sizeof(SaveData)){
+        data = saved;
+    }
+
+    fclose(fp);
+    return data;
 }
 
-//set high score to file
-void setHighScore(int currentScore){
-	FILE *fp = fopen("data/game-file.bin", "wb");
-	if(fp == NULL){
-		strcpy(state.message, "Error saving high score.");
-		return;
-	}
-
-	fwrite(&currentScore, sizeof(int), 1, fp);
-	state.highScore = currentScore;
-	fclose(fp);
+//write all persistent data to save file
+void writeSaveData(SaveData *data){
+    FILE *fp = fopen(GAME_FILE_PATH, "wb");
+    if(fp == NULL){
+        strcpy(state.message, "Error saving game data.");
+        return;
+    }
+    fwrite(data, sizeof(SaveData), 1, fp);
+    fclose(fp);
 }
 
 //calculate total score of each round 
@@ -287,7 +293,6 @@ void resetVariables(){
 	state.wrongCount = 0;
 	state.correctCount = 0;
 	state.correctFlag = 0;
-	state.highScore = getHighScore();
 	state.message[0] = '\0';
 
 	for(int i=0; i<MAX_WORD_LENGTH; i++){
@@ -298,9 +303,28 @@ void resetVariables(){
 	for(int i=0; i<MAX_WRONG_LENGTH; i++){
 		state.wrongLetters[i] = '\0';
 	}
-	
 }
 
 int getRandomNumber(int MIN, int MAX){
 	return (rand() % MAX) + MIN;
+}
+
+//copy progress stats from saved data file into game state
+void restoreGameState(SaveData *saveData){
+	state.highScore = saveData->highScore;
+	state.round = saveData->round;
+	state.score = saveData->score;
+}
+
+//copy all progress stats from game state into save data file
+void persistGameState(SaveData *saveData){
+	saveData->highScore = state.highScore;
+	saveData->round = state.round;
+	saveData->score = state.score;
+	strncpy(saveData->secretWord, state.secretWord, MAX_WORD_LENGTH);
+	strncpy(saveData->correctLetters, state.correctLetters, MAX_WORD_LENGTH);
+	strncpy(saveData->wrongLetters, state.wrongLetters, MAX_WRONG_LENGTH);
+	saveData->wrongCount = state.wrongCount;
+	saveData->correctCount = state.correctCount;
+	writeSaveData(saveData);
 }

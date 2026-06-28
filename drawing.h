@@ -114,8 +114,6 @@ Button createBackButton();
 GameOverButtons createGameOverButtons();
 //factory function for making pause menu buttons
 PauseButtons createPauseButtons();
-//factory function for creating audio settings with default values
-AudioSettings defaultAudioSettings();
 //factory function for loading all ui sound effects
 UISounds loadUISounds();
 //factory function for loading background music tracks

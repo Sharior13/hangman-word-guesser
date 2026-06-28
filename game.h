@@ -14,7 +14,7 @@
 #define GAMEOVER_REVEAL_DELAY 1.0f
 
 //path to game save file
-#define GAMEE_FILE_PATH "data/game-file.bin"
+#define GAME_FILE_PATH "data/game-file.bin"
 
 //game variables blueprint
 typedef struct{

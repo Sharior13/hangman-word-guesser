@@ -7,8 +7,8 @@ void drawHangman(int wrongCount){
     const int gallowsX = 420;
     const int gallowsY = 220;
     int parts = wrongCount;
-    if(parts > 6){
-        parts = 6;
+    if(parts > MAX_WRONGS){
+        parts = MAX_WRONGS;
     } 
  
     float thickness = 10.0f;
@@ -114,7 +114,7 @@ void drawWordDisplay(const char *correctLetters, int wordSize){
         //assign character to buffer
         char buf[2] = { correctLetters[i], '\0' };
         if(correctLetters[i] != '_'){
-            Color c = (correctLetters[i] != '\0') ? COLOR_CORRECT : COLOR_TEXT;
+            Color c = COLOR_CORRECT;
             DrawText(buf, x + 10, y, fontSize, c);
         }
     }
@@ -156,7 +156,7 @@ void drawMessage(const char *message, int correctFlag){
 //draw heart icon from loaded texture
 void drawHeart(Texture2D heartTexture, int x, int y, int size, Color tint){
     Rectangle source = { 0, 0, (float)heartTexture.width, (float)heartTexture.height };
-    Rectangle dest    = { x - size / 2.0f, y - size / 2.0f, (float)size, (float)size };
+    Rectangle dest = { x - size / 2.0f, y - size / 2.0f, (float)size, (float)size };
     DrawTexturePro(heartTexture, source, dest, (Vector2){ 0, 0 }, 0.0f, tint);
 }
 
@@ -182,7 +182,7 @@ void drawHUD(Texture2D heartTexture, int round, int score, int highScore, int li
     //draw live hearts
     int heartX = 1000, heartY = 580;
     DrawText("Lives:", heartX, heartY, 34, COLOR_DIM);
-    for(int i=0; i<6; i++){
+    for(int i=0; i<MAX_WRONGS; i++){
         Color heartTint = (i < lives) ? WHITE : Fade(GRAY, 0.4f);
         drawHeart(heartTexture, heartX + 150 + i * 48, heartY + 20, 40, heartTint);
     }
@@ -483,12 +483,6 @@ PauseButtons createPauseButtons(){
         .mainMenu = createButton(x, firstBtnY + rowHeight * 3, PAUSE_BTN_WIDTH, PAUSE_BTN_HEIGHT, "Main Menu"),
     };
     return buttons;
-}
-
-//factory function for default audio values
-AudioSettings defaultAudioSettings(){
-    AudioSettings s = { .mainVolume = 1.0f, .musicVolume = 0.8f };
-    return s;
 }
 
 //factory function for loading all ui sound effects

@@ -324,13 +324,14 @@ void drawSettingsScreen(Button *backBtn, AudioSettings *settings, Vector2 mouseP
     const char *title = "SETTINGS";
     int titleSize = 70;
     int titleW = MeasureText(title, titleSize);
+    int pctLabelWidth = MeasureText("100%", 34);
     DrawText(title, panelX + (panelW - titleW) / 2, panelY + 50, titleSize, COLOR_HIGHLIGHT);
 
     //divider under title
     DrawRectangle(panelX + 40, panelY + 140, panelW - 80, 2, COLOR_BORDER);
 
     //sliders centered inside the panel
-    int sliderX = panelX + (panelW - SETTINGS_SLIDER_WIDTH) / 2;
+    int sliderX = panelX + (panelW - SETTINGS_SLIDER_WIDTH - 20 - pctLabelWidth) / 2;
 
     settings->mainVolume  = drawSlider("Main Volume",  settings->mainVolume,  sliderX, panelY + 200, mousePos, mouseDown);
     settings->musicVolume = drawSlider("Music Volume", settings->musicVolume, sliderX, panelY + 340, mousePos, mouseDown);

@@ -122,6 +122,7 @@ Slider state is tracked in the `AudioSettings` struct. Drag detection correctly 
 
 Volume settings are saved to disk as part of the `SaveData` struct and restored on the next launch.
 
+---
 
 ## Building from Source
 

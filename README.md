@@ -7,6 +7,11 @@ A GUI Hangman game built in **C** using **[raylib 4.5](https://www.raylib.com/)*
 [![Platform](https://img.shields.io/badge/platform-Windows-lightgrey.svg)](https://www.microsoft.com/windows)
 
 ---
+## Download
+
+Grab the latest release (pre-built Windows executable + required assets) from the [Releases page](https://github.com/Sharior13/hangman-word-guesser/releases).
+
+---
 
 ## Screenshots
 ![Start Screen](https://github.com/user-attachments/assets/64e81a88-409b-417f-9b8d-460aa49b5838)
@@ -117,7 +122,6 @@ Slider state is tracked in the `AudioSettings` struct. Drag detection correctly 
 
 Volume settings are saved to disk as part of the `SaveData` struct and restored on the next launch.
 
----
 
 ## Building from Source
 
